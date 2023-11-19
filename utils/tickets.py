@@ -31,6 +31,7 @@ class TGT:
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
         
         except AttributeError:
+            print(f"found user: {self.username}")
             return None
         except:
             return 1
