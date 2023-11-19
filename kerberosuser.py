@@ -36,3 +36,6 @@ def get_user(user, domain, dc):
     cipher = tgt_data['cipher']
     old = tgt_data['oldSessionKey']
     new = tgt_data['newSessionKey']
+    TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
+    tgs = TS.run()
+    return tgs
