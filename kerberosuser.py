@@ -106,6 +106,8 @@ if __name__ == '__main__':
         dc = options.dc
         delay = options.delay
         q = build_queue(f)
+        print(art)
+        print(parser.description)
         processes = options.processes
 
         for process in range(processes):
