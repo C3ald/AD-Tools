@@ -32,14 +32,17 @@ class TGT:
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
         
         except AttributeError:
+            sys.stdout.flush()
             print(f"found user: {self.username}")
             return None
         except SessionError as e:
             try:
                 code = e.getErrorCode()
                 if code != 6:
+                    sys.stdout.flush()
                     print(f"found user: {self.username}")
             except:
+                sys.stdout.flush()
                 print(f"found user: {self.username}")
         except Exception as e:
             print(f"1{e}")

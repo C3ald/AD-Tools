@@ -14,7 +14,6 @@ except:
     from tickets import TGT, TGS
 from tqdm import tqdm
 
-progress_bar_lock = threading.Lock()
 def build_queue(file:str) -> Queue:
     objs = open(file, 'r').readlines()
     q = Queue()
