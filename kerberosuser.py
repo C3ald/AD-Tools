@@ -54,6 +54,7 @@ def run(domain, dc, delay):
         user = q.get()
         try:
             tgs = get_user(user,domain,dc)
+            print(f'[+] found user: {user}')
             print(tgs)
         except Exception as e:
             try:
