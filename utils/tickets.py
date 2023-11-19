@@ -7,7 +7,7 @@ from impacket.krb5.types import Principal
 from pyasn1.codec.der import decoder
 from impacket.krb5.asn1 import TGS_REP, AS_REP
 class TGT:
-    def __init__(self, domain, username, dc, password=None, preauth=False, nthash=None, lmhash=None, aeskey=None):
+    def __init__(self, domain, username, dc, password='', preauth=False, nthash='', lmhash='', aeskey=''):
         self.username = username
         self.domain = domain
         self.password = password
@@ -29,10 +29,12 @@ class TGT:
                                                kdcHost=self.dc, serverName=self.username)
         
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
-        except not AttributeError:
-            return 1
+        
         except AttributeError:
             return None
+        except:
+            return 1
+
 
 
 class TGS:

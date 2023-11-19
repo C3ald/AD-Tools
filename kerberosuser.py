@@ -66,9 +66,12 @@ def run(domain, dc, delay):
                     None
                 # else:
                 #     print(f'[+] found user: {user}')
+            except AttributeError:
+                None
             except Exception as e2:
                 print(f'this user: {user} fucket it up >:(')
                 print(traceback.print_exc())
+
             # # if e == SessionError:
             # #     print(f'[+] Found user: {user}')
             # print(e)
