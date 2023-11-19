@@ -47,7 +47,8 @@ def get_user(user, domain, dc):
         TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
         tgs = TS.run()
         return tgs
-    else:
+    if tgt_data != 1:
+        print(f'[+] found user: {self.username}')
         return None
 
 
