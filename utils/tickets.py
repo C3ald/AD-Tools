@@ -20,7 +20,7 @@ class TGT:
 
 
 
-    def run(self) -> {}:
+    def run(self) -> {'tgt':any, 'cipher':any, 'oldSessionKey':any, 'newSessonKey':any}:
         """setting save to True will save the tgt to the {username}.ccache"""
         userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         tgt, cipher, old, new = getKerberosTGT(clientName=userclient, password=self.password, 
@@ -28,9 +28,6 @@ class TGT:
                                                kdcHost=self.dc, serverName=self.username, kerberoast_no_preauth=self.preauth)
         return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
 
-
-def hashcat_tgs(self, tgs, oldSessionKey, sessionKey, username):
-    pass
 
 
 class TGS:
