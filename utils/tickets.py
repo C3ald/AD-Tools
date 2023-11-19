@@ -31,7 +31,7 @@ class TGT:
 
 
 class TGS:
-    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password=None, nthash='', lmhash='',preauth=False, aeskey=''):
+    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password=None, nthash=None, lmhash=None,preauth=False, aeskey=None):
         self.tgt = tgt
         self.cipher=cipher
         self.old = oldSessionKey
