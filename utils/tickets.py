@@ -30,8 +30,9 @@ class TGT:
         
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
         except Exception as e:
-            print(e)
-            exit()
+            if e == ArithmeticError:
+                print(f'[+] found user: {self.username}')
+            return None
 
 
 class TGS:

@@ -38,14 +38,17 @@ def build_queue(file:str) -> Queue:
 def get_user(user, domain, dc):
     T = TGT(domain, user, dc, preauth=False)
     tgt_data = T.run()
-    tgt = tgt_data['tgt']
-    cipher = tgt_data['cipher']
-    old = tgt_data['oldSessionKey']
-    new = tgt_data['newSessionKey']
-    print(tgt_data)
-    TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
-    tgs = TS.run()
-    return tgs
+    if tgt_data != None:
+        tgt = tgt_data['tgt']
+        cipher = tgt_data['cipher']
+        old = tgt_data['oldSessionKey']
+        new = tgt_data['newSessionKey']
+        print(tgt_data)
+        TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
+        tgs = TS.run()
+        return tgs
+    else:
+        return None
 
 
 
