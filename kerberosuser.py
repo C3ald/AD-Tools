@@ -59,7 +59,7 @@ def run(domain, dc, delay):
                 if code !=6:
                     print(f'[+] maybe found user: {user}')
             except:
-                None
+                print(e)
             # # if e == SessionError:
             # #     print(f'[+] Found user: {user}')
             # print(e)
