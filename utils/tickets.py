@@ -33,7 +33,8 @@ class TGT:
         except AttributeError:
             print(f"found user: {self.username}")
             return None
-        except:
+        except Exception as e:
+            print(e)
             return 1
 
 
