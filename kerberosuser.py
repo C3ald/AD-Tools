@@ -14,6 +14,7 @@ from impacket.krb5.asn1 import AS_REQ, KERB_PA_PAC_REQUEST, KRB_ERROR, AS_REP, s
 from impacket.krb5.kerberosv5 import sendReceive, KerberosError, SessionError
 from impacket.krb5.types import KerberosTime, Principal
 import sys
+import traceback
 try:
     from utils.adconn import LdapConn
     from utils.tickets import TGT, TGS
@@ -41,6 +42,7 @@ def get_user(user, domain, dc):
     cipher = tgt_data['cipher']
     old = tgt_data['oldSessionKey']
     new = tgt_data['newSessionKey']
+    print(tgt_data)
     TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
     tgs = TS.run()
     return tgs
@@ -59,8 +61,7 @@ def run(domain, dc, delay):
                 if code !=6:
                     print(f'[+] maybe found user: {user}')
             except Exception as e2:
-                print(e2.with_traceback())
-                print(f'first exception: {e.with_traceback()}')
+                print(traceback.print_exc())
             # # if e == SessionError:
             # #     print(f'[+] Found user: {user}')
             # print(e)
