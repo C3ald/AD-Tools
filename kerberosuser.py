@@ -3,17 +3,6 @@ import time as t
 from multiprocessing import Process
 import argparse
 import threading
-from impacket import version
-from impacket.examples import logger
-from impacket.krb5.kerberosv5 import getKerberosTGT, KerberosError, SessionKeyDecryptionError
-from impacket.krb5 import constants
-from impacket.krb5.types import Principal
-from impacket.krb5.ccache import CCache
-from impacket.ldap import ldap, ldapasn1, ldaptypes
-from impacket.krb5 import constants
-from impacket.krb5.asn1 import AS_REQ, KERB_PA_PAC_REQUEST, KRB_ERROR, AS_REP, seq_set, seq_set_iter
-from impacket.krb5.kerberosv5 import sendReceive, KerberosError, SessionError
-from impacket.krb5.types import KerberosTime, Principal
 import sys
 import traceback
 try:
@@ -23,7 +12,7 @@ except:
     sys.path.insert(0, './utils')
     from adconn import LdapConn
     from tickets import TGT, TGS
-
+from tqdm import tqdm
 
 
 def build_queue(file:str) -> Queue:
@@ -68,19 +57,11 @@ def run(domain, dc, delay):
                 code = e.getErrorCode()
                 if code ==6:
                     None
-                # else:
-                #     print(f'[+] found user: {user}')
             except AttributeError:
                 None
             except Exception as e2:
                 print(f'this user: {user} fucket it up >:(')
                 print(traceback.print_exc())
-
-            # # if e == SessionError:
-            # #     print(f'[+] Found user: {user}')
-            # print(e)
-            # print(e.getErrorCode())
-            # #print(KerberosError.getErrorCode())
         finally:
             t.sleep(delay)
 
@@ -123,12 +104,13 @@ if __name__ == '__main__':
         print(art)
         print(parser.description)
         processes = options.workers
-        for process in range(processes):
+        with tqdm(total=q.qsize(), desc="Progress", unit="users") as pbar:
+            for process in range(processes):
             # p = Process(target=run, args=(domain, dc, delay,))
-            p = threading.Thread(target=run, args=(domain, dc, delay,))
-            p.start()
-            p.join()
-            t.sleep(0.1)
+                p = threading.Thread(target=run, args=(domain, dc, delay,))
+                p.start()
+                p.join()
+                t.sleep(0.1)
     except not KeyboardInterrupt:
         parser.print_help()
     

@@ -19,4 +19,5 @@ pycparser==2.21
 pycryptodomex==3.19.0
 pyOpenSSL==23.3.0
 six==1.16.0
+tqdm==4.66.1
 Werkzeug==3.0.1
