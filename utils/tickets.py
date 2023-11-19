@@ -26,7 +26,7 @@ class TGT:
         tgt, cipher, old, new = getKerberosTGT(clientName=userclient, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, aesKey=self.aeskey, 
                                                kdcHost=self.dc, serverName=self.username)
-        print(f'[+] found user: {user}')
+        print(f'[+] found user: {self.username}')
         return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
 
 
