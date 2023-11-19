@@ -25,7 +25,7 @@ class TGT:
         userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         tgt, cipher, old, new = getKerberosTGT(clientName=userclient, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, aesKey=self.aeskey, 
-                                               kdcHost=self.dc, serverName=self.username, kerberoast_no_preauth=self.preauth)
+                                               kdcHost=self.dc, serverName=self.username)
         return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
 
 
