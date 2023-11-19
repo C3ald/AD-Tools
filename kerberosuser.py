@@ -76,22 +76,25 @@ if __name__ == '__main__':
 
     parser.description = f"""This tool is for asrep roasting multiple users that don't require preauth"""
     parser.prog = art
-    parser.add_argument('-user_file', help="the user file for user to be enumerated")
-    parser.add_argument('-domain', help='the target domain')
-    parser.add_argument('-dc', help='the domain controller')
-    parser.add_argument('-processes', default=1, help='the number of processes, defailt is 3', type=int)
-    parser.add_argument('-delay', help='add a delay in between requests', default=0.1, type=float)
+    try:
+        parser.add_argument('-user_file', help="the user file for user to be enumerated")
+        parser.add_argument('-domain', help='the target domain')
+        parser.add_argument('-dc', help='the domain controller')
+        parser.add_argument('-processes', default=1, help='the number of processes, defailt is 3', type=int)
+        parser.add_argument('-delay', help='add a delay in between requests', default=0.1, type=float)
 
-    options = parser.parse_args()
+        options = parser.parse_args()
+        f = options.user_file
+        domain = options.domain
+        dc = options.dc
+        delay = options.delay
+        q = build_queue(f)
+        processes = options.processes
+
+        for process in range(processes):
+            p = Process(target=run, args=(domain, dc, delay,))
+            p.start()
+            p.join()
+    except:
+        parser.print_help()
     
-    f = options.user_file
-    domain = options.domain
-    dc = options.dc
-    delay = options.delay
-    q = build_queue(f)
-    processes = options.processes
-
-    for process in range(processes):
-        p = Process(target=run, args=(domain, dc, delay,))
-        p.start()
-        p.join()

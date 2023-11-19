@@ -1,0 +1,22 @@
+blinker==1.7.0
+cffi==1.16.0
+charset-normalizer==3.3.2
+click==8.1.7
+colorama==0.4.6
+cryptography==41.0.5
+dnspython==2.4.2
+dsinternals==1.2.4
+Flask==3.0.0
+future==0.18.3
+impacket @ file:///D:/SMBSHARE/pips/impacket
+itsdangerous==2.1.2
+Jinja2==3.1.2
+ldap3==2.9.1
+ldapdomaindump==0.9.4
+MarkupSafe==2.1.3
+pyasn1==0.5.0
+pycparser==2.21
+pycryptodomex==3.19.0
+pyOpenSSL==23.3.0
+six==1.16.0
+Werkzeug==3.0.1
