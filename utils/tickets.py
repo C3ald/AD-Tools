@@ -31,6 +31,8 @@ class TGT:
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
         except not AttributeError:
             return 1
+        except AttributeError:
+            return None
 
 
 class TGS:
