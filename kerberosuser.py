@@ -54,11 +54,14 @@ def run(domain, dc, delay):
             tgs = get_user(user,domain,dc)
             print(tgs)
         except Exception as e:
-            # if e == SessionError:
-            #     print(f'[+] Found user: {user}')
-            print(e)
-            print(e.getErrorCode())
-            #print(KerberosError.getErrorCode())
+            code = e.getErrorCode()
+            if code !=6:
+                print(f'[+] maybe found user: {user}')
+            # # if e == SessionError:
+            # #     print(f'[+] Found user: {user}')
+            # print(e)
+            # print(e.getErrorCode())
+            # #print(KerberosError.getErrorCode())
         finally:
             t.sleep(delay)
 
