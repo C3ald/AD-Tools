@@ -14,7 +14,7 @@ except:
     from tickets import TGT, TGS
 from tqdm import tqdm
 
-
+progress_bar_lock = threading.Lock()
 def build_queue(file:str) -> Queue:
     objs = open(file, 'r').readlines()
     q = Queue()
@@ -63,6 +63,8 @@ def run(domain, dc, delay):
                 print(f'this user: {user} fucket it up >:(')
                 print(traceback.print_exc())
         finally:
+            with progress_bar_lock:
+                pbar.update(1)
             t.sleep(delay)
 
 
