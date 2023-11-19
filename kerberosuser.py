@@ -58,8 +58,9 @@ def run(domain, dc, delay):
                 code = e.getErrorCode()
                 if code !=6:
                     print(f'[+] maybe found user: {user}')
-            except:
-                print(e)
+            except Exception as e2:
+                print(e2)
+                print(f'first exception: {e}')
             # # if e == SessionError:
             # #     print(f'[+] Found user: {user}')
             # print(e)
