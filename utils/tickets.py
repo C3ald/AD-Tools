@@ -32,7 +32,7 @@ class TGT:
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
         
         except AttributeError:
-            print(f"1 found user: {self.username}")
+            print(f"found user: {self.username}")
             return None
         except SessionError as e:
             try:

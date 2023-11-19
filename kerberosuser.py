@@ -57,7 +57,8 @@ def run(domain, dc, delay):
         user = q.get()
         try:
             tgs = get_user(user,domain,dc)
-            print(tgs)
+            if tgs != None:
+                print(tgs)
         except Exception as e:
             try:
                 code = e.getErrorCode()
