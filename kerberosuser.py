@@ -13,9 +13,14 @@ from impacket.krb5 import constants
 from impacket.krb5.asn1 import AS_REQ, KERB_PA_PAC_REQUEST, KRB_ERROR, AS_REP, seq_set, seq_set_iter
 from impacket.krb5.kerberosv5 import sendReceive, KerberosError
 from impacket.krb5.types import KerberosTime, Principal
-from .utils.adconn import LdapConn
-from .utils.tickets import TGT, TGS
-
+import sys
+try:
+    from utils.adconn import LdapConn
+    from utils.tickets import TGT, TGS
+except:
+    sys.path.insert(0, './utils')
+    from adconn import LdapConn
+    from tickets import TGT, TGS
 
 
 
