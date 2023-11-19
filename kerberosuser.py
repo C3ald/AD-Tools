@@ -58,8 +58,10 @@ def run(domain, dc, delay):
         except Exception as e:
             try:
                 code = e.getErrorCode()
-                if code !=6:
-                    print(f'[+] maybe found user: {user}')
+                if code ==6:
+                    None
+                else:
+                    print(f'[+] found user: {user}')
             except Exception as e2:
                 print(f'this user: {user} fucket it up >:(')
                 print(traceback.print_exc())
