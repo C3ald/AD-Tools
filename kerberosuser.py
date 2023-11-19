@@ -11,7 +11,7 @@ from impacket.krb5.ccache import CCache
 from impacket.ldap import ldap, ldapasn1, ldaptypes
 from impacket.krb5 import constants
 from impacket.krb5.asn1 import AS_REQ, KERB_PA_PAC_REQUEST, KRB_ERROR, AS_REP, seq_set, seq_set_iter
-from impacket.krb5.kerberosv5 import sendReceive, KerberosError
+from impacket.krb5.kerberosv5 import sendReceive, KerberosError, SessionError
 from impacket.krb5.types import KerberosTime, Principal
 import sys
 try:
@@ -54,7 +54,8 @@ def run(domain, dc, delay):
             tgs = get_user(user,domain,dc)
             print(tgs)
         except Exception as e:
-            print(e)
+            if e != SessionError:
+                print(f'[+] Found user: {user}')
         finally:
             t.sleep(delay)
 
@@ -100,6 +101,6 @@ if __name__ == '__main__':
             p = Process(target=run, args=(domain, dc, delay,))
             p.start()
             p.join()
-    except:
+    except not KeyboardInterrupt:
         parser.print_help()
     
