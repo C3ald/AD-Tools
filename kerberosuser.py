@@ -57,7 +57,8 @@ def run(domain, dc, delay):
             # if e == SessionError:
             #     print(f'[+] Found user: {user}')
             print(e)
-            print(KerberosError.getErrorCode())
+            print(e.getErrorCode())
+            #print(KerberosError.getErrorCode())
         finally:
             t.sleep(delay)
 
