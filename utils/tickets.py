@@ -29,10 +29,9 @@ class TGT:
                                                kdcHost=self.dc, serverName=self.username)
         
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
-        except Exception as e:
-            if e == ArithmeticError:
+        except ArithmeticError:
                 print(f'[+] found user: {self.username}')
-            return None
+        return None
 
 
 class TGS:
