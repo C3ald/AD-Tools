@@ -29,10 +29,10 @@ class TGT:
                                                kdcHost=self.dc, serverName=self.username)
         
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
-        except Exception as e:
-                if e is AttributeError:
-                    print(f'[+] found user: {self.username}')
-        return None
+        except not AttributeError:
+                    
+            return None
+        print(f'[+] found user: {self.username}')
 
 
 class TGS:
