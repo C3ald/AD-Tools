@@ -54,18 +54,17 @@ def run(domain, dc, delay):
         user = q.get()
         try:
             tgs = get_user(user,domain,dc)
-            print(f'[+] found user: {user}')
             print(tgs)
         except Exception as e:
-            try:
-                code = e.getErrorCode()
-                if code ==6:
-                    None
-                else:
-                    print(f'[+] found user: {user}')
-            except Exception as e2:
-                print(f'this user: {user} fucket it up >:(')
-                print(traceback.print_exc())
+            # try:
+            #     # code = e.getErrorCode()
+            #     # if code ==6:
+            #     #     None
+            #     # else:
+            #     #     print(f'[+] found user: {user}')
+            # except Exception as e2:
+            print(f'this user: {user} fucket it up >:(')
+            print(traceback.print_exc())
             # # if e == SessionError:
             # #     print(f'[+] Found user: {user}')
             # print(e)
