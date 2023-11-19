@@ -48,7 +48,7 @@ def get_user(user, domain, dc):
         tgs = TS.run()
         return tgs
     if tgt_data == None:
-        print(f'[+] found user: {user}')
+        print(f'4 [+] found user: {user}')
         return None
 
 
