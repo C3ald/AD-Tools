@@ -38,11 +38,11 @@ class TGT:
             try:
                 code = e.getErrorCode()
                 if code != 6:
-                    print(f"2 found user: {self.username}")
+                    print(f"found user: {self.username}")
             except:
-                print(f"3 found user: {self.username}")
+                print(f"found user: {self.username}")
         except Exception as e:
-            print(e)
+            print(f"1{e}")
             return 1
 
 
