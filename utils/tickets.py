@@ -23,12 +23,15 @@ class TGT:
     def run(self) -> {'tgt':any, 'cipher':any, 'oldSessionKey':any, 'newSessonKey':any}:
         """setting save to True will save the tgt to the {username}.ccache"""
         userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
-        tgt, cipher, old, new = getKerberosTGT(clientName=userclient, password=self.password, 
+        try:
+            tgt, cipher, old, new = getKerberosTGT(clientName=userclient, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, aesKey=self.aeskey, 
                                                kdcHost=self.dc, serverName=self.username)
-        print(f'[+] found user: {self.username}')
-        return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
-
+        
+            return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
+        except Exception as e:
+            print(e)
+            exit()
 
 
 class TGS:
