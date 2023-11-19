@@ -2,6 +2,7 @@ from queue import Queue
 import time as t
 from multiprocessing import Process
 import argparse
+import threading
 from impacket import version
 from impacket.examples import logger
 from impacket.krb5.kerberosv5 import getKerberosTGT, KerberosError, SessionKeyDecryptionError
@@ -107,7 +108,7 @@ if __name__ == '__main__':
         parser.add_argument('-user_file', help="the user file for user to be enumerated")
         parser.add_argument('-domain', help='the target domain')
         parser.add_argument('-dc', help='the domain controller')
-        parser.add_argument('-processes', default=3, help='the number of processes, defailt is 3', type=int)
+        parser.add_argument('-workers', default=10, help='the number of threads in the thread pool, default is 10', type=int)
         parser.add_argument('-delay', help='add a delay in between requests', default=0, type=float)
 
         options = parser.parse_args()
@@ -118,10 +119,10 @@ if __name__ == '__main__':
         q = build_queue(f)
         print(art)
         print(parser.description)
-        processes = options.processes
-
+        processes = options.workers
         for process in range(processes):
-            p = Process(target=run, args=(domain, dc, delay,))
+            # p = Process(target=run, args=(domain, dc, delay,))
+            p = threading.Thread(target=run, args=(domain, dc, delay,))
             p.start()
             p.join()
             t.sleep(0.1)
