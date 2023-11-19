@@ -73,7 +73,9 @@ if __name__ == '__main__':
 
 
 """
+
     parser.description = f"""This tool is for asrep roasting multiple users that don't require preauth"""
+    parser.prog = art
     parser.add_argument('-user_file', help="the user file for user to be enumerated")
     parser.add_argument('-domain', help='the target domain')
     parser.add_argument('-dc', help='the domain controller')
@@ -81,7 +83,7 @@ if __name__ == '__main__':
     parser.add_argument('-delay', help='add a delay in between requests', default=0.1, type=float)
 
     options = parser.parse_args()
-    print(art)
+    
     f = options.user_file
     domain = options.domain
     dc = options.dc
