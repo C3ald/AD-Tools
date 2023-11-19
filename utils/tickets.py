@@ -30,7 +30,8 @@ class TGT:
         
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
         except Exception as e:
-                print(f'[+] found user: {self.username}')
+                if e is AttributeError:
+                    print(f'[+] found user: {self.username}')
         return None
 
 
