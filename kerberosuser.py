@@ -45,8 +45,11 @@ def get_user(user, domain, dc):
         old = tgt_data['oldSessionKey']
         new = tgt_data['newSessionKey']
         print(tgt_data)
-        TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
-        tgs = TS.run()
+        try:
+            TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
+            tgs = TS.run()
+        except Exception as e:
+            print(f"TGS error: {e}")
         return tgs
     if tgt_data == None:
         return None
