@@ -4,6 +4,7 @@ from binascii import unhexlify, hexlify
 from impacket.krb5.kerberosv5 import getKerberosTGT, getKerberosTGS
 from impacket.krb5 import constants
 from impacket.krb5.types import Principal
+from impacket.krb5.kerberosv5 import sendReceive, KerberosError, SessionError
 from pyasn1.codec.der import decoder
 from impacket.krb5.asn1 import TGS_REP, AS_REP
 class TGT:
@@ -33,6 +34,13 @@ class TGT:
         except AttributeError:
             print(f"found user: {self.username}")
             return None
+        except SessionError as e:
+            try:
+                code = e.getErrorCode()
+                if code != 6:
+                    print(f"found user: {self.username}")
+            except:
+                print(f"found user: {self.username}")
         except Exception as e:
             print(e)
             return 1
