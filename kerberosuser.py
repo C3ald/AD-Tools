@@ -100,8 +100,8 @@ if __name__ == '__main__':
         parser.add_argument('-user_file', help="the user file for user to be enumerated")
         parser.add_argument('-domain', help='the target domain')
         parser.add_argument('-dc', help='the domain controller')
-        parser.add_argument('-processes', default=1, help='the number of processes, defailt is 3', type=int)
-        parser.add_argument('-delay', help='add a delay in between requests', default=0.1, type=float)
+        parser.add_argument('-processes', default=3, help='the number of processes, defailt is 3', type=int)
+        parser.add_argument('-delay', help='add a delay in between requests', default=0, type=float)
 
         options = parser.parse_args()
         f = options.user_file
