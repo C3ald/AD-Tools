@@ -63,8 +63,7 @@ def run(domain, dc, delay):
                 print(f'this user: {user} fucket it up >:(')
                 print(traceback.print_exc())
         finally:
-            with progress_bar_lock:
-                pbar.update(1)
+            pbar.update(1)
             t.sleep(delay)
 
 
