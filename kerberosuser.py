@@ -120,6 +120,7 @@ if __name__ == '__main__':
             p = Process(target=run, args=(domain, dc, delay,))
             p.start()
             p.join()
+            t.sleep(0.1)
     except not KeyboardInterrupt:
         parser.print_help()
     
