@@ -4,8 +4,8 @@ from binascii import unhexlify
 from impacket.krb5.kerberosv5 import getKerberosTGT, getKerberosTGS
 from impacket.krb5 import constants
 from impacket.krb5.types import Principal
-from impacket.krb5.kerberosv5 import TGS_REP, TGS_REQ
-
+from pyasn1.codec.der import decoder
+from impacket.krb5.asn1 import TGS_REP, AS_REP
 class TGT:
     def __init__(self, domain, username, dc, password=None, preauth=False, nthash=None, lmhash=None, aeskey=None):
         self.username = username
@@ -58,3 +58,7 @@ class TGS:
         userclient.type = constants.PrincipalNameType.NT_MS_PRINCIPAL.value
         userclient.components = formatted_name
         tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc, self.tgt, self.cipher, self.new)
+        if self.preauth == False:
+            decodes = decoder.decode(tgs, asn1Spec=AS_REP())[0]
+        else:
+            decodes = decoder.decode(tgs, asn1Spec=TGS_REP())[0]
