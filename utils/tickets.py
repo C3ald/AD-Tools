@@ -49,7 +49,16 @@ class TGT:
                 print(f"\n 2found user: {self.username}")
         except Exception as e:
             print(f"1{e}")
-            print(f"{tgt}, {cipher}, {old}, {new}")
+            print(f'trying with domain instead of user....')
+            serverName = Principal('ldap/%s' % self.domain, type=constants.PrincipalNameType.NT_SRV_INST.value)
+            try:
+                tgt, cipher, old, new = getKerberosTGT(clientName=serverName, password=self.password, 
+                                               domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, aesKey=self.aeskey, 
+                                               kdcHost=self.dc_ip)
+                return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
+            except Exception as e:
+                print(f"0 {e}")
+
             return 1
 
 
