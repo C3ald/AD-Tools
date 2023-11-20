@@ -70,6 +70,7 @@ class TGT:
             seq_set_iter(body, 'etype', ciphers)
             m = encoder.encode(asReq)
             r = sendReceive(m, domain, self.dc_ip)
+            print(e)
         try:
             asrep = decoder.decode(r, asn1Spec=KRB_ERROR())[0]
         except:
