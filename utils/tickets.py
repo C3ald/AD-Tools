@@ -60,6 +60,23 @@ class TGT:
         body['rtime'] = KerberosTime.to_asn1(now)
         body['nonce'] = random.getrandbits(31)
         ciphers = (int(constants.EncryptionTypes.rc4_hmac.value),)
+        seq_set_iter(body, 'etype', ciphers)
+        m = encoder.encode(asReq)
+        try:
+            r = sendReceive(m, domain, self.dc_ip)
+        except KerberosError as e:
+            ciphers = (int(constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value),
+                    int(constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value),)
+            seq_set_iter(body, 'etype', ciphers)
+            m = encoder.encode(asReq)
+            r = sendReceive(m, domain, self.dc_ip)
+        try:
+            asrep = decoder.decode(r, asn1Spec=KRB_ERROR())[0]
+        except:
+            asrep = decoder.decode(r, asn1Spec=AS_REP())[0]
+        
+        return 
+
         # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         # try:
         #     tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
