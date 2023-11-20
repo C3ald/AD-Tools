@@ -33,7 +33,7 @@ def enumerate_user(user, domain, dc):
     dc_ip = socket.gethostbyname(dc)
     userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
     try:
-        getKerberosTGT(userclient,domain=domain,dcHost=dc_ip)
+        getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip)
     except SessionError as e:
         code = e.getErrorCode()
         if code != 6:
