@@ -12,8 +12,7 @@ except:
     sys.path.insert(0, './utils')
     from adconn import LdapConn
     from tickets import TGT, TGS
-from alive_progress import alive_bar
-progress_bar_lock = threading.Lock()
+
 
 def build_queue(file) -> Queue:
     objs = open(file, 'r').readlines()
@@ -47,7 +46,6 @@ def get_user(user, domain, dc):
 
 def run(domain, dc, delay):
     while not q.empty():
-        pbar()
         user = q.get()
         try:
             tgs = get_user(user,domain,dc)
@@ -105,7 +103,6 @@ if __name__ == '__main__':
         print(art)
         print(parser.description)
         processes = options.workers
-        pbar = alive_bar(int(q.qsize()), title="Progress", unit="users")
         for process in range(processes):
             # p = Process(target=run, args=(domain, dc, delay,))
             p = threading.Thread(target=run, args=(domain, dc, delay,))
@@ -114,7 +111,6 @@ if __name__ == '__main__':
             t.sleep(0.1)
     except KeyboardInterrupt:
         exit()
-    except Exception as e:
-        print(e)
+    except:
         parser.print_help()
     
