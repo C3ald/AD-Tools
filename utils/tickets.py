@@ -14,6 +14,7 @@ from impacket.krb5.kerberosv5 import sendReceive, KerberosError
 from impacket.krb5.types import KerberosTime, Principal
 from impacket.ldap import ldap, ldapasn1
 from impacket.smbconnection import SMBConnection
+import socket
 class TGT:
     def __init__(self, domain, username, dc, password='', preauth=False, nthash='', lmhash='', aeskey=''):
         self.username = username
