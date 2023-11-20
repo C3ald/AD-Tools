@@ -25,7 +25,7 @@ def build_queue(file) -> Queue:
 
 
 def get_user(user, domain, dc):
-    T = TGT(domain, user, dc, preauth=False)
+    T = TGT(domain=domain, username=user, dc=dc, preauth=False)
     tgt_data = T.run()
     if tgt_data != None:
         tgt = tgt_data['tgt']
@@ -34,7 +34,7 @@ def get_user(user, domain, dc):
         new = tgt_data['newSessionKey']
         print(tgt_data)
         try:
-            TS = TGS(tgt, domain, cipher, old, new, user, dc, preauth=False)
+            TS = TGS(tgt=tgt, domain=domain, cipher=cipher, old=old, new=new, user=user, dc=dc, preauth=False)
             tgs = TS.run()
         except Exception as e:
             print(f"TGS error: {e}")
