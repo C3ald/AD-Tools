@@ -14,6 +14,7 @@ from impacket.krb5.kerberosv5 import sendReceive, KerberosError
 from impacket.krb5.types import KerberosTime, Principal
 from impacket.ldap import ldap, ldapasn1
 from impacket.smbconnection import SMBConnection
+import traceback
 import socket
 class TGT:
     def __init__(self, domain, username, dc, password='', nthash='', lmhash='', aeskey=''):
@@ -29,7 +30,7 @@ class TGT:
 
 
 
-    def run(self, save=False) -> {'tgt':any, 'cipher':any, 'oldSessionKey':any, 'newSessonKey':any}:
+    def run(self, save=False):
         """setting save to True will save the tgt to the {username}.ccache"""
 
         clientName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
@@ -89,6 +90,7 @@ class TGT:
                 message = encoder.encode(asReq)
                 r = sendReceive(message, domain, self.__kdcHost)
             else:
+                print(traceback.format_exc())
                 raise e
 
         # This should be the PREAUTH_FAILED packet or the actual TGT if the target principal has the

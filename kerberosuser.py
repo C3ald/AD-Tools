@@ -45,6 +45,7 @@ def enumerate_user(user, domain, dc):
             print(e)
             return None
     except Exception as e:
+        print(e)
         print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
         return user
         
