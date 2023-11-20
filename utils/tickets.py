@@ -108,7 +108,7 @@ class TGT:
                                                hexlify(asRep['enc-part']['cipher'].asOctets()[16:]))
 
         # Let's output the TGT enc-part/cipher in John format, in case somebody wants to use it.
-        print("\n")
+        print(f'[+] {self.username} does not require preauth!')
         print(results)
         return results
 
