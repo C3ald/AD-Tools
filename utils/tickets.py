@@ -33,7 +33,7 @@ class TGT:
         
         except AttributeError:
             sys.stdout.flush()
-            print(f"found user: {self.username}")
+            print(f"found user: {self.username} \n")
             return None
         except SessionError as e:
             try:
