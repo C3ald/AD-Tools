@@ -102,7 +102,8 @@ class TGT:
             asRep = decoder.decode(r, asn1Spec=AS_REP())[0]
         else:
             # The user doesn't have UF_DONT_REQUIRE_PREAUTH set
-            raise Exception('User %s doesn\'t have UF_DONT_REQUIRE_PREAUTH set' % self.username)
+            # raise Exception('User %s doesn\'t have UF_DONT_REQUIRE_PREAUTH set' % self.username)
+            None
         results = '$krb5asrep$%d$%s@%s:%s$%s' % ( asRep['enc-part']['etype'], clientName, domain,
                                                hexlify(asRep['enc-part']['cipher'].asOctets()[:16]),
                                                hexlify(asRep['enc-part']['cipher'].asOctets()[16:]))
