@@ -109,7 +109,10 @@ class TGT:
 
         # Let's output the TGT enc-part/cipher in John format, in case somebody wants to use it.
         print(f'[+] {self.username} does not require preauth! saving to {self.username}.hash')
-        
+        name = f'{self.username}.hash'
+        f = open(name, 'w')
+        f.write(results)
+
         #print(results)
         return results
 
