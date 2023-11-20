@@ -80,7 +80,7 @@ class TGT:
         message = encoder.encode(asReq)
 
         try:
-            r = sendReceive(message, domain, self.__kdcHost)
+            r = sendReceive(message, domain, self.dc_ip)
         except KerberosError as e:
             if e.getErrorCode() == constants.ErrorCodes.KDC_ERR_ETYPE_NOSUPP.value:
                 # RC4 not available, OK, let's ask for newer types
@@ -88,7 +88,7 @@ class TGT:
                                     int(constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value),)
                 seq_set_iter(reqBody, 'etype', supportedCiphers)
                 message = encoder.encode(asReq)
-                r = sendReceive(message, domain, self.__kdcHost)
+                r = sendReceive(message, domain, self.dc_ip)
             else:
                 print(traceback.format_exc())
                 raise e
