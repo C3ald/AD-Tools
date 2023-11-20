@@ -114,6 +114,7 @@ if __name__ == '__main__':
             t.sleep(0.1)
     except KeyboardInterrupt:
         exit()
-    except:
+    except Exception as e:
+        print(e)
         parser.print_help()
     
