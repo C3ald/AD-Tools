@@ -12,8 +12,9 @@ except:
     sys.path.insert(0, './utils')
     from adconn import LdapConn
     from tickets import TGT, TGS
-from tqdm import tqdm
 
+
+progress_bar_lock = threading.Lock()
 def build_queue(file:str) -> Queue:
     objs = open(file, 'r').readlines()
     q = Queue()
@@ -62,7 +63,6 @@ def run(domain, dc, delay):
                 print(f'this user: {user} fucket it up >:(')
                 print(traceback.print_exc())
         finally:
-            pbar.update(1)
             t.sleep(delay)
 
 
@@ -104,13 +104,12 @@ if __name__ == '__main__':
         print(art)
         print(parser.description)
         processes = options.workers
-        with tqdm(total=q.qsize(), desc="Progress", unit="users") as pbar:
-            for process in range(processes):
+        for process in range(processes):
             # p = Process(target=run, args=(domain, dc, delay,))
-                p = threading.Thread(target=run, args=(domain, dc, delay,))
-                p.start()
-                p.join()
-                t.sleep(0.1)
+            p = threading.Thread(target=run, args=(domain, dc, delay,pbar,))
+            p.start()
+            p.join()
+            t.sleep(0.1)
     except not KeyboardInterrupt:
         parser.print_help()
     
