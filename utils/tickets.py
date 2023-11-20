@@ -7,6 +7,7 @@ from impacket.krb5.types import Principal
 from impacket.krb5.kerberosv5 import sendReceive, KerberosError, SessionError
 from pyasn1.codec.der import decoder
 from impacket.krb5.asn1 import TGS_REP, AS_REP
+import traceback
 import socket
 class TGT:
     def __init__(self, domain, username, dc, password='', preauth=False, nthash='', lmhash='', aeskey=''):
@@ -57,7 +58,7 @@ class TGT:
                                                kdcHost=self.dc_ip)
                 return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
             except Exception as e:
-                print(f"0 {e}")
+                print(f"0 {traceback.format_exc()}")
 
             return 1
 
