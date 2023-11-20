@@ -41,6 +41,7 @@ def enumerate_user(user, domain, dc):
             print(f'[+] Found user: {user}@{domain}')
             return user
         else:
+            print(e)
             return None
         
 
