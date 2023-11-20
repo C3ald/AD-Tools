@@ -14,7 +14,7 @@ except:
     from tickets import TGT, TGS
 
 
-def build_queue(file:str) -> Queue:
+def build_queue(file) -> Queue:
     objs = open(file, 'r').readlines()
     q = Queue()
     for obj in objs:
