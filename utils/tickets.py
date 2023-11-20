@@ -41,7 +41,7 @@ class TGT:
                 code = e.getErrorCode()
                 if code != 6:
                     sys.stdout.flush()
-                    print(f"\n 1found user: {self.username}")
+                    print(f"\n 1found user: {self.username} {e} on code: {code}")
             except:
                 sys.stdout.flush()
                 print(f"\n 2found user: {self.username}")
