@@ -28,7 +28,7 @@ class TGT:
         """setting save to True will save the tgt to the {username}.ccache"""
         userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         try:
-            tgt, cipher, old, new = getKerberosTGT(clientName=userclient, password=self.password, 
+            tgt, cipher, old, new = getKerberosTGT(userclient, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
                                                kdcHost=self.dc_ip)
         
@@ -53,7 +53,7 @@ class TGT:
             print(f'trying with domain instead of user....')
             serverName = Principal('ldap/%s' % self.domain, type=constants.PrincipalNameType.NT_SRV_INST.value)
             try:
-                tgt, cipher, old, new = getKerberosTGT(clientName=serverName, password=self.password, 
+                tgt, cipher, old, new = getKerberosTGT(serverName, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
                                                kdcHost=self.dc_ip)
                 return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
