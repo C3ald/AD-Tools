@@ -28,11 +28,11 @@ class TGT:
         """setting save to True will save the tgt to the {username}.ccache"""
         userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         try:
-            tgt, cipher, old, new = getKerberosTGT(userclient, password=self.password, 
+            tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
                                                kdcHost=self.dc_ip)
         
-            return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
+            return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':oldSessionKey, 'newSessionKey':newSessionKey}
         
         except AttributeError:
             sys.stdout.flush()
