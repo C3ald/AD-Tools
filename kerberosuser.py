@@ -27,7 +27,7 @@ def build_queue(file) -> Queue:
 def get_user(user, domain, dc):
     T = TGT(domain=domain, username=user, dc=dc, preauth=False)
     tgt_data = T.run()
-    print(tgt_data)
+    return tgt_data
     # if tgt_data != None:
     #     tgt = tgt_data['tgt']
     #     cipher = tgt_data['cipher']
