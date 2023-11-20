@@ -81,7 +81,7 @@ class TGT:
 
         try:
             r = sendReceive(message, domain, self.__kdcHost)
-        except KerberosError, e:
+        except KerberosError as e:
             if e.getErrorCode() == constants.ErrorCodes.KDC_ERR_ETYPE_NOSUPP.value:
                 # RC4 not available, OK, let's ask for newer types
                 supportedCiphers = (int(constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value),
