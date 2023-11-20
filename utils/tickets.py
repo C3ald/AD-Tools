@@ -74,8 +74,12 @@ class TGT:
             asrep = decoder.decode(r, asn1Spec=KRB_ERROR())[0]
         except:
             asrep = decoder.decode(r, asn1Spec=AS_REP())[0]
-        
-        return 
+        first = asrep['enc-part']['etype']
+        second = clientName
+        third = domain
+        fourth = hexlify(asrep['enc-part']['cipher'].asOctets()[:16])
+        fifth = hexlify(asrep['enc-part']['cipher'].asOctets()[16:])
+        return f'$krb5asrep${first}${second}@{third}:{fourth}${fifth}'
 
         # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         # try:
