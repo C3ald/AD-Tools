@@ -27,20 +27,21 @@ def build_queue(file) -> Queue:
 def get_user(user, domain, dc):
     T = TGT(domain=domain, username=user, dc=dc, preauth=False)
     tgt_data = T.run()
-    if tgt_data != None:
-        tgt = tgt_data['tgt']
-        cipher = tgt_data['cipher']
-        old = tgt_data['oldSessionKey']
-        new = tgt_data['newSessionKey']
-        print(tgt_data)
-        try:
-            TS = TGS(tgt=tgt, domain=domain, cipher=cipher, old=old, new=new, user=user, dc=dc, preauth=False)
-            tgs = TS.run()
-        except Exception as e:
-            print(f"TGS error: {e}")
-        return tgs
-    if tgt_data == None:
-        return None
+    print(tgt_data)
+    # if tgt_data != None:
+    #     tgt = tgt_data['tgt']
+    #     cipher = tgt_data['cipher']
+    #     old = tgt_data['oldSessionKey']
+    #     new = tgt_data['newSessionKey']
+    #     print(tgt_data)
+    #     try:
+    #         TS = TGS(tgt=tgt, domain=domain, cipher=cipher, old=old, new=new, user=user, dc=dc, preauth=False)
+    #         tgs = TS.run()
+    #     except Exception as e:
+    #         print(f"TGS error: {e}")
+    #     return tgs
+    # if tgt_data == None:
+    #     return None
 
 
 
