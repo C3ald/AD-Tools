@@ -30,7 +30,7 @@ class TGT:
         try:
             tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
-                                               kdcHost=self.dc_ip)
+                                               kdcHost=self.dc_ip, serverName=self.domain)
         
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':oldSessionKey, 'newSessionKey':newSessionKey}
         
