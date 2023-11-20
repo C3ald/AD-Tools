@@ -9,68 +9,58 @@ from pyasn1.codec.der import decoder
 from impacket.krb5.asn1 import TGS_REP, AS_REP
 import traceback
 import socket
-
-
 class TGT:
-    def __init__(self, domain, username, dc, password='', lmhash='', nthash=''):
+    def __init__(self, domain, username, dc, password='', preauth=False, nthash='', lmhash='', aeskey=''):
         self.username = username
         self.domain = domain
         self.password = password
         self.dc = dc
-        self.lmhash = lmhash
+        self.preauth = preauth
         self.nthash = nthash
+        self.lmhash = lmhash
+        self.aeskey = aeskey
         self.dc_ip = socket.gethostbyname(self.dc)
 
-    def run(self):
+
+
+
+    def run(self) -> {'tgt':any, 'cipher':any, 'oldSessionKey':any, 'newSessonKey':any}:
+        """setting save to True will save the tgt to the {username}.ccache"""
         userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         try:
-            tgt, cipher, old, new = getKerberosTGT(
-                userclient,
-                password=self.password,
-                domain=self.domain,
-                lmhash=self.lmhash,
-                nthash=self.nthash,
-                kdcHost=self.dc_ip
-            )
-            return {'tgt': tgt, 'cipher': cipher, 'oldSessionKey': old, 'newSessionKey': new}
-
+            tgt, cipher, old, new = getKerberosTGT(userclient, password=self.password, 
+                                               domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
+                                               kdcHost=self.dc_ip)
+        
+            return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
+        
         except AttributeError:
             sys.stdout.flush()
-            print(f"\nFound user: {self.username}")
+            print("")
+            print(f"\n3 found user: {self.username} \n")
             return None
-
         except SessionError as e:
             try:
                 code = e.getErrorCode()
                 if code != 6:
                     sys.stdout.flush()
-                    print(f"\nFound user: {self.username}, error: {e}, code: {code}")
+                    print(f"\n 1found user: {self.username} {e} on code: {code}")
             except:
                 sys.stdout.flush()
-                print(f"\nFound user: {self.username}")
-
+                print(f"\n 2found user: {self.username}")
         except Exception as e:
-            print(f"Error for user {self.username}: {e}")
-            print(traceback.format_exc())
-            print("Trying with domain instead of user....")
-
+            print(f"1 {traceback.format_exc()}")
+            print(f'trying with domain instead of user....')
             serverName = Principal('ldap/%s' % self.domain, type=constants.PrincipalNameType.NT_SRV_INST.value)
             try:
-                tgt, cipher, old, new = getKerberosTGT(
-                    serverName,
-                    password=self.password,
-                    domain=self.domain,
-                    lmhash=self.lmhash,
-                    nthash=self.nthash,
-                    kdcHost=self.dc_ip
-                )
-                return {'tgt': tgt, 'cipher': cipher, 'oldSessionKey': old, 'newSessionKey': new}
-
+                tgt, cipher, old, new = getKerberosTGT(serverName, password=self.password, 
+                                               domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
+                                               kdcHost=self.dc_ip)
+                return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
             except Exception as e:
-                print(f"Error for user {self.username} with domain: {e}")
-                print(traceback.format_exc())
+                None
 
-            return None
+            return 1
 
 
 
