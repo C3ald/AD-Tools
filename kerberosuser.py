@@ -14,7 +14,6 @@ except:
     from tickets import TGT, TGS
 
 
-progress_bar_lock = threading.Lock()
 def build_queue(file:str) -> Queue:
     objs = open(file, 'r').readlines()
     q = Queue()
@@ -106,7 +105,7 @@ if __name__ == '__main__':
         processes = options.workers
         for process in range(processes):
             # p = Process(target=run, args=(domain, dc, delay,))
-            p = threading.Thread(target=run, args=(domain, dc, delay,pbar,))
+            p = threading.Thread(target=run, args=(domain, dc, delay,))
             p.start()
             p.join()
             t.sleep(0.1)
