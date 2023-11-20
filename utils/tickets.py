@@ -90,8 +90,7 @@ class TGT:
                 message = encoder.encode(asReq)
                 r = sendReceive(message, domain, self.dc_ip)
             else:
-                print(traceback.format_exc())
-                raise e
+                None
 
         # This should be the PREAUTH_FAILED packet or the actual TGT if the target principal has the
         # 'Do not require Kerberos preauthentication' set
