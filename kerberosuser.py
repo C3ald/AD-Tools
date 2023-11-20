@@ -46,7 +46,7 @@ def get_user(user, domain, dc):
 
 def run(domain, dc, delay):
     while not q.empty():
-        print(f'progress: {q.qsize()}/{total}       ', end="\r")
+        print(f'progress: {total - q.qsize()}/{total}       ', end="\r")
         sys.stdout.flush()
         user = q.get()
         try:
