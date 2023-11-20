@@ -105,7 +105,7 @@ if __name__ == '__main__':
         print(art)
         print(parser.description)
         processes = options.workers
-        pbar = alive_bar(q.qsize(), title="Progress", unit="users")
+        pbar = alive_bar(int(q.qsize()), title="Progress", unit="users")
         for process in range(processes):
             # p = Process(target=run, args=(domain, dc, delay,))
             p = threading.Thread(target=run, args=(domain, dc, delay,))
