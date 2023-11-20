@@ -31,7 +31,8 @@ def build_queue(file) -> Queue:
 
 def enumerate_user(user, domain, dc):
     dc_ip = socket.gethostbyname(dc)
-    userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+    userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value, password='',
+                           lmhash='', nthash='')
     try:
         getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip)
     except SessionError as e:
