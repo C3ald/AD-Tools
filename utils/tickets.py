@@ -83,7 +83,11 @@ class TGS:
         entry = None
         tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new)
         if self.preauth == False:
-            decodes = decoder.decode(tgs, asn1Spec=AS_REP())[0]
+            try:
+                decodes = decoder.decode(tgs, asn1Spec=AS_REP())[0]
+            except Exception as e:
+                print(e)
+                decodes = decoder.decode(tgs, asn1Spec=TGS_REP())[0]
         else:
             decodes = decoder.decode(tgs, asn1Spec=TGS_REP())[0]
 
