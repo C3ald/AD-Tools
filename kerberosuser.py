@@ -47,9 +47,6 @@ def get_user(user, domain, dc):
 
 def run(domain, dc, delay):
     while not q.empty():
-        sys.stdout.flush()
-        print(f'                                            progress: {total - q.qsize()}/{total}       ', end="\r")
-        sys.stdout.flush()
         user = q.get()
         try:
             tgs = get_user(user,domain,dc)
