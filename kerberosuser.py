@@ -92,6 +92,7 @@ def get_userTGT(user, domain, dc):
     if valid != None:
         T = TGT(domain=domain, username=valid, dc=dc)
         tgt_data = T.run()
+        print(tgt_data)
     else:
         tgt_data = None
     return tgt_data
