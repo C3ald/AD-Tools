@@ -58,7 +58,7 @@ class TGT:
                                                kdcHost=self.dc_ip)
                 return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
             except Exception as e:
-                print(f"0 {traceback.format_exc()}")
+                None
 
             return 1
 
