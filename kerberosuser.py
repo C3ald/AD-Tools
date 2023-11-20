@@ -46,6 +46,8 @@ def get_user(user, domain, dc):
 
 def run(domain, dc, delay):
     while not q.empty():
+        print(f'progress: {q.qsize()}/{total}       ', end="\r")
+        sys.stdout.flush()
         user = q.get()
         try:
             tgs = get_user(user,domain,dc)
@@ -103,6 +105,7 @@ if __name__ == '__main__':
         print(art)
         print(parser.description)
         processes = options.workers
+        total = q.qsize()
         for process in range(processes):
             # p = Process(target=run, args=(domain, dc, delay,))
             p = threading.Thread(target=run, args=(domain, dc, delay,))
