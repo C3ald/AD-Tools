@@ -49,6 +49,7 @@ class TGT:
                 print(f"\n 2found user: {self.username}")
         except Exception as e:
             print(f"1{e}")
+            print(f"{tgt}, {cipher}, {old}, {new}")
             return 1
 
 
