@@ -49,7 +49,7 @@ class TGT:
                 sys.stdout.flush()
                 print(f"\n 2found user: {self.username}")
         except Exception as e:
-            print(f"1{e}")
+            print(f"1 {traceback.format_exc()}")
             print(f'trying with domain instead of user....')
             serverName = Principal('ldap/%s' % self.domain, type=constants.PrincipalNameType.NT_SRV_INST.value)
             try:
