@@ -29,7 +29,7 @@ class TGT:
         try:
             tgt, cipher, old, new = getKerberosTGT(clientName=userclient, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, aesKey=self.aeskey, 
-                                               kdcHost=self.dc_ip, serverName=self.username)
+                                               kdcHost=self.dc_ip, serverName=self.username, kerberoast_no_preauth=True)
         
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
         
@@ -54,7 +54,7 @@ class TGT:
 
 
 class TGS:
-    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password=None, nthash=None, lmhash=None,preauth=False, aeskey=None):
+    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None):
         self.tgt = tgt
         self.cipher=cipher
         self.old = oldSessionKey
