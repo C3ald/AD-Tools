@@ -112,6 +112,8 @@ class TGT:
         name = f'{self.username}.hash'
         f = open(name, 'w')
         f.write(results)
+        r = open(f, 'r').readlines()
+        print(r)
 
         #print(results)
         return results
