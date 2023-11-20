@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import random
 import sys
 from binascii import hexlify
@@ -112,9 +113,7 @@ class TGT:
         name = f'{self.username}.hash'
         f = open(name, 'w')
         f.write(results)
-        r = open(f, 'r').readlines()
-        print(r)
-
+        print results
         #print(results)
         return results
 
