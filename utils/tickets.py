@@ -34,17 +34,17 @@ class TGT:
         except AttributeError:
             sys.stdout.flush()
             print("")
-            print(f"\nfound user: {self.username} \n")
+            print(f"\n3 found user: {self.username} \n")
             return None
         except SessionError as e:
             try:
                 code = e.getErrorCode()
                 if code != 6:
                     sys.stdout.flush()
-                    print(f"\nfound user: {self.username}")
+                    print(f"\n 1found user: {self.username}")
             except:
                 sys.stdout.flush()
-                print(f"\nfound user: {self.username}")
+                print(f"\n 2found user: {self.username}")
         except Exception as e:
             print(f"1{e}")
             return 1
