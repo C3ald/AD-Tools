@@ -1,3 +1,5 @@
+about-time==4.2.1
+alive-progress==3.1.5
 blinker==1.7.0
 cffi==1.16.0
 charset-normalizer==3.3.2
@@ -8,6 +10,7 @@ dnspython==2.4.2
 dsinternals==1.2.4
 Flask==3.0.0
 future==0.18.3
+grapheme==0.6.0
 impacket @ file:///D:/SMBSHARE/pips/impacket
 itsdangerous==2.1.2
 Jinja2==3.1.2
