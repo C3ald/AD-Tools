@@ -37,7 +37,7 @@ def enumerate_user(user, domain, dc):
                            lmhash='', nthash='')
     except SessionError as e:
         code = e.getErrorCode()
-        if code != 6:
+        if code:
             print(f'[+] Found user: {user}@{domain}')
             return user
         else:
