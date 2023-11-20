@@ -46,6 +46,7 @@ def enumerate_user(user, domain, dc):
             return None
     except Exception as e:
         print(f'[+] possible kerberoastable or asrep raostable user: {user}')
+        return user
         
 
         # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
