@@ -7,6 +7,7 @@ from impacket.krb5.types import Principal
 from impacket.krb5.kerberosv5 import sendReceive, KerberosError, SessionError
 from pyasn1.codec.der import decoder
 from impacket.krb5.asn1 import TGS_REP, AS_REP
+import socket
 class TGT:
     def __init__(self, domain, username, dc, password='', preauth=False, nthash='', lmhash='', aeskey=''):
         self.username = username
@@ -17,6 +18,7 @@ class TGT:
         self.nthash = nthash
         self.lmhash = lmhash
         self.aeskey = aeskey
+        self.dc_ip = socket.gethostbyname(self.dc)
 
 
 
@@ -27,7 +29,7 @@ class TGT:
         try:
             tgt, cipher, old, new = getKerberosTGT(clientName=userclient, password=self.password, 
                                                domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, aesKey=self.aeskey, 
-                                               kdcHost=self.dc, serverName=self.username)
+                                               kdcHost=self.dc_ip, serverName=self.username)
         
             return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
         
@@ -65,6 +67,7 @@ class TGS:
         self.preauth = preauth
         self.aeskey = aeskey
         self.domain = domain
+        self.dc_ip = socket.gethostbyname(self.dc)
 
 
 
@@ -78,7 +81,7 @@ class TGS:
         userclient.type = constants.PrincipalNameType.NT_MS_PRINCIPAL.value
         userclient.components = formatted_name
         entry = None
-        tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc, self.tgt, self.cipher, self.new)
+        tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new)
         if self.preauth == False:
             decodes = decoder.decode(tgs, asn1Spec=AS_REP())[0]
         else:
