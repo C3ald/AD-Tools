@@ -90,7 +90,7 @@ class TGT:
                 message = encoder.encode(asReq)
                 r = sendReceive(message, domain, self.dc_ip)
             else:
-                None
+                raise e
 
         # This should be the PREAUTH_FAILED packet or the actual TGT if the target principal has the
         # 'Do not require Kerberos preauthentication' set
@@ -102,7 +102,7 @@ class TGT:
         else:
             # The user doesn't have UF_DONT_REQUIRE_PREAUTH set
             # raise Exception('User %s doesn\'t have UF_DONT_REQUIRE_PREAUTH set' % self.username)
-            None
+            raise e
         results = '$krb5asrep$%d$%s@%s:%s$%s' % ( asRep['enc-part']['etype'], clientName, domain,
                                                hexlify(asRep['enc-part']['cipher'].asOctets()[:16]),
                                                hexlify(asRep['enc-part']['cipher'].asOctets()[16:]))
