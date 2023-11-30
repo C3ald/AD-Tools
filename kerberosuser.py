@@ -98,6 +98,7 @@ def get_userTGT(user, domain, dc):
                 tgt_data = Ts.run(roast=True)
             except Exception as e:
                 print(e.__traceback__)
+                tgt_data = None
     else:
         tgt_data = None
     return tgt_data
