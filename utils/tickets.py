@@ -160,8 +160,7 @@ class TGS:
                                                                                            lmhash=self.lmhash, 
                                                                                            nthash=self.nthash, 
                                                                                            aesKey=self.aeskey, 
-                                                                                           kdcHost=self.dc_ip, 
-                                                                                           kerberoast_no_preauth=no_preauth)
+                                                                                           kdcHost=self.dc_ip)
 
 
 
