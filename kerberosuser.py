@@ -145,7 +145,7 @@ if __name__ == '__main__':
 """
 
     parser.description = f"""This tool is for asrep roasting multiple users that don't require preauth 
-    and for enumerating users (will grab TGTs if able)"""
+    and for enumerating users (will grab TGTs if able and output into hashcat format)"""
     parser.prog = art
     try:
         parser.add_argument('-user_file', help="the user file for user to be enumerated")

@@ -11,12 +11,18 @@ from impacket.dcerpc.v5.samr import UF_ACCOUNTDISABLE, UF_DONT_REQUIRE_PREAUTH
 from impacket.examples import logger
 from impacket.krb5 import constants
 from impacket.krb5.asn1 import AS_REQ, KERB_PA_PAC_REQUEST, KRB_ERROR, AS_REP, seq_set, seq_set_iter
-from impacket.krb5.kerberosv5 import sendReceive, KerberosError
+#from impacket.krb5.kerberosv5 import sendReceive, KerberosError
 from impacket.krb5.types import KerberosTime, Principal
 from impacket.ldap import ldap, ldapasn1
 from impacket.smbconnection import SMBConnection
 import traceback
 import socket
+try:
+    import utils.kerb5getuserspnnopreauth as kerb5nopreauth
+except ImportError:
+    import kerb5getuserspnnopreauth as kerb5nopreauth
+    
+from kerb5getuserspnnopreauth import sendReceive, KerberosError
 class TGT:
     def __init__(self, domain, username, dc, password='', nthash='', lmhash='', aeskey=''):
         self.username = username
@@ -33,7 +39,7 @@ class TGT:
 
     def run(self, save=False):
         """setting save to True will save the tgt to the {username}.ccache"""
-
+        
         clientName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
 
         asReq = AS_REQ()
