@@ -89,8 +89,12 @@ def enumerate_user(user, domain, dc):
 def get_userTGT(user, domain, dc):
     valid = enumerate_user(user, domain, dc)
     if valid != None:
-        T = TGT(domain=domain, username=valid, dc=dc)
-        tgt_data = T.run()
+        try:
+            T = TGT(domain=domain, username=valid, dc=dc)
+            tgt_data = T.run()
+        except:
+            Ts = TGS(domain=domain, username=valid, dc=dc)
+            tgt_data = Ts.run(roast=True)
     else:
         tgt_data = None
     return tgt_data

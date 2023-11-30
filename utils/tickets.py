@@ -135,7 +135,7 @@ def getName(machine):
 
 
 class TGS:
-    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None, roast=False):
+    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None):
         self.tgt = tgt
         self.cipher=cipher
         self.old = oldSessionKey
@@ -149,21 +149,21 @@ class TGS:
         self.aeskey = aeskey
         self.domain = domain
         self.dc_ip = socket.gethostbyname(self.dc)
-        self.roast = roast
 
 
 
 
 
-    def run(self, fd=None):
+
+    def run(self, fd=None, roast=False):
         """change fd to save to file, will return entry if there is one"""
-        spn = self.domain + '/' + self.username
-        formatted_name = self.domain + "\\" + self.username
+        spn = self.username + '@' + self.domain
+        formatted_name = self.domain + "/" + self.username
         userclient = Principal()
         userclient.type = constants.PrincipalNameType.NT_MS_PRINCIPAL.value
         userclient.components = formatted_name
         entry = None
-        if self.roast == False:
+        if roast == False:
             tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new)
         else:
             tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new, kerb5nopreauth=True)
