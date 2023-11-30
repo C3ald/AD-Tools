@@ -155,7 +155,7 @@ class TGS:
         self.dc_ip = socket.gethostbyname(self.dc)
         if not (oldSessionKey or cipher or newSessionKey):
             client = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
-            self.tgt, self.cipher, self.old, self.new = getKerberosTGT(client, password=self.password, 
+            self.tgt, self.cipher, self.old, self.new = getKerberosTGT(clientName=client, password=self.password, 
                                                                                            domain=self.domain, 
                                                                                            lmhash=self.lmhash, 
                                                                                            nthash=self.nthash, 
