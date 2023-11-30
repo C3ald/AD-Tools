@@ -135,7 +135,7 @@ def getName(machine):
 
 
 class TGS:
-    def __init__(self, tgt, domain, username, dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None,cipher=None, oldSessionKey=None, newSessionKey=None):
+    def __init__(self, domain, username, dc,tgt=None,password='', nthash=None, lmhash=None,preauth=False, aeskey=None,cipher=None, oldSessionKey=None, newSessionKey=None):
         self.tgt = tgt
         self.cipher=cipher
         self.old = oldSessionKey
