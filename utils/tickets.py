@@ -22,7 +22,7 @@ try:
 except ImportError:
     import kerb5getuserspnnopreauth as kerb5nopreauth
     
-from kerb5getuserspnnopreauth import sendReceive, KerberosError
+from kerb5getuserspnnopreauth import sendReceive, KerberosError, getKerberosTGS, getKerberosTGT
 class TGT:
     def __init__(self, domain, username, dc, password='', nthash='', lmhash='', aeskey=''):
         self.username = username
@@ -135,7 +135,7 @@ def getName(machine):
 
 
 class TGS:
-    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None):
+    def __init__(self, tgt, domain, username, dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None,cipher=None, oldSessionKey=None, newSessionKey=None):
         self.tgt = tgt
         self.cipher=cipher
         self.old = oldSessionKey
@@ -148,8 +148,14 @@ class TGS:
         self.preauth = preauth
         self.aeskey = aeskey
         self.domain = domain
+        if self.preauth == True:
+            no_preauth = False
+        else:
+            no_preauth = True
         self.dc_ip = socket.gethostbyname(self.dc)
-
+        if not (oldSessionKey or cipher or newSessionKey):
+            client = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+            self.tgt, self.cipher, self.oldSessionKey, self.newSessionKey = getKerberosTGT(client, password=self.password, domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, aesKey=self.aeskey, kdcHost=self.dc_ip, kerberoast_no_preauth=no_preauth, serverName=self.username)
 
 
 
