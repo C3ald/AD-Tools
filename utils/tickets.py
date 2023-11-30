@@ -154,14 +154,9 @@ class TGS:
             no_preauth = True
         self.dc_ip = socket.gethostbyname(self.dc)
         if not (oldSessionKey or cipher or newSessionKey):
-            client = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
-            self.tgt, self.cipher, self.old, self.new = getKerberosTGT(clientName=client, password=self.password, 
-                                                                                           domain=self.domain, 
-                                                                                           lmhash=self.lmhash, 
-                                                                                           nthash=self.nthash, 
-                                                                                           aesKey=self.aeskey, 
-                                                                                           kdcHost=self.dc, kerberoast_no_preauth=no_preauth,
-                                                                                           serverName=self.username)
+            self.principalName = Principal()
+            self.principalName.type = constants.PrincipalNameType.NT_ENTERPRISE.value
+            self.principalName.components = [self.username]
 
 
 
