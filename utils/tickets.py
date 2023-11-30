@@ -135,7 +135,7 @@ def getName(machine):
 
 
 class TGS:
-    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None):
+    def __init__(self, tgt, domain, cipher, oldSessionKey, newSessionKey, username, dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None, roast=False):
         self.tgt = tgt
         self.cipher=cipher
         self.old = oldSessionKey
@@ -149,6 +149,7 @@ class TGS:
         self.aeskey = aeskey
         self.domain = domain
         self.dc_ip = socket.gethostbyname(self.dc)
+        self.roast = roast
 
 
 
@@ -162,7 +163,10 @@ class TGS:
         userclient.type = constants.PrincipalNameType.NT_MS_PRINCIPAL.value
         userclient.components = formatted_name
         entry = None
-        tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new)
+        if self.roast == False:
+            tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new)
+        else:
+            tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new, kerb5nopreauth=True)
         if self.preauth == False:
             try:
                 decodes = decoder.decode(tgs, asn1Spec=AS_REP())[0]
