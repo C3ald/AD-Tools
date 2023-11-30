@@ -97,7 +97,7 @@ def get_userTGT(user, domain, dc):
                 Ts = TGS(domain=domain, username=valid, dc=dc)
                 tgt_data = Ts.run(roast=True)
             except Exception as e:
-                print(e.__traceback__)
+                print(e)
                 tgt_data = None
     else:
         tgt_data = None
