@@ -93,13 +93,15 @@ def get_userTGT(user, domain, dc):
     valid = enumerate_user(user, domain, dc) 
     user = valid['user']
     if valid != None:
-        T = TGT(domain=domain, username=user, dc=dc)
-        tgt_data = T.run()
         try:
-            Ts = TGS(domain=domain, username=user, dc=dc,target_domain=domain, request_user=valid, outputfile=None,usersfile=None)
-            tgt_data = Ts.run()
-        except Exception as e:
-            print(e)
+            T = TGT(domain=domain, username=user, dc=dc)
+            tgt_data = T.run()
+        except:
+            try:
+                Ts = TGS(domain=domain, username=user, dc=dc,target_domain=domain, request_user=valid, outputfile=None,usersfile=None)
+                tgt_data = Ts.run()
+            except Exception as e:
+                print(e)
     else:
         tgt_data = None
     return tgt_data
