@@ -109,16 +109,8 @@ def get_userTGT(user, domain, dc):
     valid = enumerate_user(user, domain, dc) 
     user = valid['user']
     if valid != None:
-        try:
-            T = TGT(domain=domain, username=user, dc=dc)
-            tgt_data = T.run()
-        except:
-            try:
-                Ts = TGS(domain=domain, username=user, dc=dc, tgt=tgt, cipher=cipher, oldSessionKey=oldSessionKey, newSessionKey=newSessionKey)
-                tgt_data = Ts.run(roast=True)
-            except Exception as e:
-                print(e)
-                tgt_data = None
+        T = TGT(domain=domain, username=user, dc=dc)
+        tgt_data = T.run()
     else:
         tgt_data = None
     return tgt_data
