@@ -31,7 +31,7 @@ def build_queue(file) -> Queue:
         q.put(obj)
     return q
 
-
+discovered = []
 def enumerate_user(user, domain, dc):
     dc_ip = socket.gethostbyname(dc)
     userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
@@ -43,7 +43,8 @@ def enumerate_user(user, domain, dc):
             code = e.getErrorCode()
             if code != 6:
                 print(f'[+] Found user: {user}@{domain}')
-                return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
+                discovered.append(user)
+                return {'user':user}
             else:
                 return None
         except Exception as e:
@@ -57,8 +58,9 @@ def enumerate_user(user, domain, dc):
         except SessionError as e:
             code = e.getErrorCode()
             if code != 6:
-                print(f'[+] Found user: {user}@{domain}')
-                return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
+                if user not in discovered:
+                    print(f'[+] Found user: {user}@{domain}')
+                return {'user':user}
             else:
                 return None
         except Exception as e:
