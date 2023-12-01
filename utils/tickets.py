@@ -336,6 +336,7 @@ class TGS:
                 ccache.saveFile('%s.ccache' % username)
             except Exception as e:
                 logging.error(str(e))
+        return entry
 
     def run(self):
         if self.__usersFile:
