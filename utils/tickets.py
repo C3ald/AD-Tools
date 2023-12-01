@@ -175,6 +175,7 @@ class TGS:
         # [!] in this script the value of -dc-ip option is self.__kdcIP and the value of -dc-host option is self.__kdcHost
         self.__kdcIP = socket.gethostbyname(dc)
         self.__kdcHost = dc
+        user_domain = domain
         self.__saveTGS = True
         self.__requestUser = request_user
         self.__stealth = False
