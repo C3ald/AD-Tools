@@ -96,7 +96,8 @@ def get_userTGSs(no_preauth_user, domain, target_users, dc):
             T = TGS(domain=domain, username=user, dc=dc)
             T.run(nopreauth_user=no_preauth_user)
         except Exception as e:
-            print(traceback.print_exc())
+            None
+            #print(traceback.print_exc())
 
 
 def get_userTGT(user, domain, dc):
