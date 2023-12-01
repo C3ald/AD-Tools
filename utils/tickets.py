@@ -135,7 +135,7 @@ def getName(machine):
 
 
 class TGS:
-    def __init__(self, domain, username, dc,tgt=None,password='', nthash=None, lmhash=None,preauth=False, aeskey=None,cipher=None, oldSessionKey=None, newSessionKey=None):
+    def __init__(self, domain, tgt,username, cipher, oldSessionKey, newSessionKey,dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None):
         self.tgt = tgt
         self.cipher=cipher
         self.old = oldSessionKey
@@ -153,9 +153,9 @@ class TGS:
         else:
             no_preauth = True
         self.dc_ip = socket.gethostbyname(self.dc)
-        if not (oldSessionKey or cipher or newSessionKey):
-            userName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
-            self.tgt, self.cipher, self.old, self.new = getKerberosTGT(userName, self.password, self.domain, self.lmhash, self.nthash, self.aeskey, kdcHost=self.dc_ip, kerberoast_no_preauth=no_preauth)
+        #if not (oldSessionKey or cipher or newSessionKey):
+        #    userName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+        #    self.tgt, self.cipher, self.old, self.new = getKerberosTGT(userName, self.password, self.domain, self.lmhash, self.nthash, self.aeskey, kdcHost=self.dc_ip, kerberoast_no_preauth=no_preauth)
 
 
 
