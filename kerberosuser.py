@@ -97,7 +97,8 @@ def get_userTGT(user, domain, dc):
             T = TGT(domain=domain, username=user, dc=dc)
             tgt_data = T.run()
         except:
-            Ts = TGS(domain=domain, username=user, dc=dc,)
+            Ts = TGS(domain=domain, username=user, dc=dc)
+            tgt_data = Ts.run()
     else:
         tgt_data = None
     return tgt_data
