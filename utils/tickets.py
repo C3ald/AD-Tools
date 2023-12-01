@@ -152,8 +152,8 @@ class TGS:
         self.dc_ip = socket.gethostbyname(self.dc)
         self.no_preauth = no_preauth
     
-    def get_TGT(self):
-        userName = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
+    def get_TGT(self, no_preauth_user):
+        userName = Principal(no_preauth_user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         tgt, cipher, oldSessioKey, sessionKey = getKerberosTGT(userName, password=self.password, 
                                                                domain=self.domain, nthash=self.nthash, 
                                                                lmhash=self.lmhash, aesKey=self.aeskey, 
@@ -238,7 +238,7 @@ class TGS:
             except Exception as e:
                 logging.error(str(e))
         return entry
-    def run(self):
+    def run(self, nopreauth_user):
         tgt_data = self.get_TGT()
         tgt = tgt_data['tgt']
         cipher = tgt_data['cipher']
