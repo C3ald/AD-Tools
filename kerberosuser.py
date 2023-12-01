@@ -100,6 +100,7 @@ def get_userTGT(user, domain, dc):
             try:
                 Ts = TGS(domain=domain, username=user, dc=dc)
                 tgt_data = Ts.run()
+                # `error preauth failed`
             except Exception as e:
                 print(traceback.print_exc())
     else:
