@@ -40,8 +40,11 @@ def enumerate_user(user, domain, dc):
             getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
                            lmhash='', nthash='')
         except:
-            nopreauthTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
-                        lmhash='', nthash='', serverName=user, kerberoast_no_preauth=True)
+            try:
+                nopreauthTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
+                            lmhash='', nthash='', serverName=user, kerberoast_no_preauth=True)
+            except Exception as e:
+                print(f'error: {e}, on user: {user}')
     except SessionError as e:
         code = e.getErrorCode()
         if code != 6:
