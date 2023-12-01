@@ -143,7 +143,7 @@ class TGS:
         self.old = oldSessionKey
         self.new = newSessionKey
         self.username = username
-        self.dc = dc
+        self.dc_ip = dc
         self.password = password
         self.nthash = nthash
         self.lmhash = lmhash
