@@ -162,7 +162,7 @@ class TGS:
         self.__username = username
         self.__password = password
         self.__domain = domain
-        self.__target = None
+        self.__target = domain
         self.__targetDomain = target_domain
         self.__lmhash = ''
         self.__nthash = ''
