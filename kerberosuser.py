@@ -106,12 +106,8 @@ def enumerate_user(user, domain, dc):
 
 
 def get_userTGT(user, domain, dc):
-    valid = enumerate_user(user, domain, dc)
-    tgt = valid['tgt']
+    valid = enumerate_user(user, domain, dc) 
     user = valid['user']
-    cipher = valid['cipher']
-    oldSessionKey = valid['oldSessionKey']
-    newSessionKey = valid['newSessionKey']
     if valid != None:
         try:
             T = TGT(domain=domain, username=user, dc=dc)
