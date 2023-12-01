@@ -91,6 +91,7 @@ def enumerate_user(user, domain, dc):
 
 
 def get_userTGSs(no_preauth_user, domain, target_users, dc):
+    print('[+] trying to kerberoast with the gathered info....')
     for user in target_users:
         try:
             T = TGS(domain=domain, username=user, dc=dc)
