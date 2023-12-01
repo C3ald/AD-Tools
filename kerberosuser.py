@@ -36,8 +36,13 @@ def enumerate_user(user, domain, dc):
     dc_ip = socket.gethostbyname(dc)
     userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
     try:
-        getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
+        try:
+            getKerberosTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
                            lmhash='', nthash='')
+        except:
+            
+            nopreauthTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
+                           lmhash='', nthash='', kerberoast_no_preauth=True)
     except SessionError as e:
         code = e.getErrorCode()
         if code != 6:
