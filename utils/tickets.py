@@ -158,7 +158,7 @@ class TGS:
         for row in items:
             print(outputFormat.format(*row))
 
-    def __init__(self, username, password, domain, dc,target_domain, usersfile,outputfile,request_user=None,lmhash=None,nthash=None,no_preauth_user=None,kerbauth=False,aeskey=None,request=True):
+    def __init__(self, username, domain, dc,target_domain, usersfile,outputfile, password=None,request_user=None,lmhash=None,nthash=None,no_preauth_user=None,kerbauth=False,aeskey=None,request=True):
         self.__username = username
         self.__password = password
         self.__domain = domain
