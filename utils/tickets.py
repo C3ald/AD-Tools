@@ -30,7 +30,7 @@ except ImportError:
     
 from kerb5getuserspnnopreauth import sendReceive, KerberosError, getKerberosTGS, getKerberosTGT
 class TGT:
-    def init(self, domain, username, dc, password='', nthash='', lmhash='', aeskey=''):
+    def __init__(self, domain, username, dc, password='', nthash='', lmhash='', aeskey=''):
         self.username = username
         self.domain = domain
         self.password = password
