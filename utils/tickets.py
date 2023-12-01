@@ -154,7 +154,7 @@ class TGS:
             self.kdcIP = self.dc_ip
         else:
             self.kdcIP = kdcIP
-        self.dc_ip = socket.gethostbyname(self.dc)
+        self.dc_ip = socket.gethostbyname(self.dc_ip)
         if not (oldSessionKey or cipher or newSessionKey):
            self.getTGT()
            
