@@ -239,7 +239,7 @@ class TGS:
                 logging.error(str(e))
         return entry
     def run(self, nopreauth_user):
-        tgt_data = self.get_TGT()
+        tgt_data = self.get_TGT(no_preauth_user=nopreauth_user)
         tgt = tgt_data['tgt']
         cipher = tgt_data['cipher']
         oldSessionKey = tgt_data['old']
