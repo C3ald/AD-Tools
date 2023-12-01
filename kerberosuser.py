@@ -98,7 +98,7 @@ def get_userTGSs(no_preauth_user, domain, target_users, dc):
             T.run(nopreauth_user=no_preauth_user)
         except Exception as e:
             None
-            #print(traceback.print_exc())
+            print(traceback.print_exc())
 
 
 def get_userTGT(user, domain, dc):
@@ -148,9 +148,6 @@ def run(domain, dc, delay):
             print(e)
         finally:
             t.sleep(delay)
-    for nopreauthuser in no_preauth_users:
-        get_userTGSs(no_preauth_user=nopreauthuser, domain=domain, target_users=discovered, dc=dc)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -198,6 +195,10 @@ if __name__ == '__main__':
             p.start()
             p.join()
             t.sleep(0.1)
+        for nopreauthuser in no_preauth_users:
+            get_userTGSs(no_preauth_user=nopreauthuser, domain=domain, target_users=discovered, dc=dc)
+
+
     except KeyboardInterrupt:
         exit()
     except:
