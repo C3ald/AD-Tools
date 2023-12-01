@@ -233,9 +233,9 @@ class TGS:
                 decodedTGS['ticket']['sname']['name-string'][0], decodedTGS['ticket']['sname']['name-string'][1],
                 decodedTGS['ticket']['enc-part']['etype']))
 
-        if self.__saveTGS is True:
+        if fd:
             # Save the ticket
-            logging.debug('About to save TGS for %s' % username)
+            #logging.debug('About to save TGS for %s' % username)
             ccache = CCache()
             try:
                 ccache.fromTGS(ticket, oldSessionKey, sessionKey)
