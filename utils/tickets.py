@@ -190,7 +190,8 @@ class TGS:
                 hexlify(decodedTGS['ticket']['enc-part']['cipher'][:16].asOctets()).decode(),
                 hexlify(decodedTGS['ticket']['enc-part']['cipher'][16:].asOctets()).decode())
             if fd is None:
-                print(entry)
+                None
+                # print(entry)
             else:
                 fd.write(entry + '\n')
         elif decodedTGS['ticket']['enc-part']['etype'] == constants.EncryptionTypes.aes128_cts_hmac_sha1_96.value:
@@ -200,7 +201,8 @@ class TGS:
                 hexlify(decodedTGS['ticket']['enc-part']['cipher'][-12:].asOctets()).decode(),
                 hexlify(decodedTGS['ticket']['enc-part']['cipher'][:-12:].asOctets()).decode())
             if fd is None:
-                print(entry)
+                None
+                # print(entry)
             else:
                 fd.write(entry + '\n')
         elif decodedTGS['ticket']['enc-part']['etype'] == constants.EncryptionTypes.aes256_cts_hmac_sha1_96.value:
@@ -210,7 +212,8 @@ class TGS:
                 hexlify(decodedTGS['ticket']['enc-part']['cipher'][-12:].asOctets()).decode(),
                 hexlify(decodedTGS['ticket']['enc-part']['cipher'][:-12:].asOctets()).decode())
             if fd is None:
-                print(entry)
+                None
+                # print(entry)
             else:
                 fd.write(entry + '\n')
         elif decodedTGS['ticket']['enc-part']['etype'] == constants.EncryptionTypes.des_cbc_md5.value:
@@ -220,7 +223,8 @@ class TGS:
                 hexlify(decodedTGS['ticket']['enc-part']['cipher'][:16].asOctets()).decode(),
                 hexlify(decodedTGS['ticket']['enc-part']['cipher'][16:].asOctets()).decode())
             if fd is None:
-                print(entry)
+                None
+                # print(entry)
             else:
                 fd.write(entry + '\n')
         else:
@@ -237,6 +241,7 @@ class TGS:
                 ccache.saveFile('%s.ccache' % username)
             except Exception as e:
                 logging.error(str(e))
+        print(f'[+] obtained TGS for user: {username}: {entry}')
         return entry
     def run(self, nopreauth_user):
         tgt_data = self.get_TGT(no_preauth_user=nopreauth_user)
