@@ -163,7 +163,6 @@ class TGS:
 
 
     def outputTGS(self, ticket, oldSessionKey, sessionKey, fd=None):
-        fd = open(f'{self.username}.hash', 'w')
         username = self.username
         spn = self.domain + '/' + username
         if self.no_preauth:
@@ -242,7 +241,8 @@ class TGS:
                 ccache.saveFile('%s.ccache' % username)
             except Exception as e:
                 logging.error(str(e))
-        print(f'[+] obtained TGS for user: {username}: {entry}')
+        print(f'[+] obtained TGS for user: {username}')
+        print(entry)
         return entry
     def run(self, nopreauth_user):
         tgt_data = self.get_TGT(no_preauth_user=nopreauth_user)
