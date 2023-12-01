@@ -141,5 +141,14 @@ def getName(machine):
 
 
 class TGS:
-    def __init__(self, domain, dc, password) -> None:
+    def __init__(self, domain, dc, password='', nthash='', lmhash='', aeskey='') -> None:
+        self.domain = domain
+        self.dc = dc
+        self.password = password
+        self.nthash = nthash
+        self.lmhash = lmhash
+        self.aeskey = aeskey
+        self.dc_ip = socket.gethostbyname(self.dc)
+    
+    def get_TGT(self):
         pass
