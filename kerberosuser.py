@@ -42,7 +42,7 @@ def enumerate_user(user, domain, dc):
         except:
             try:
                 nopreauthTGT(userclient,domain=domain,kdcHost=dc_ip, password='',
-                            lmhash='', nthash='', serverName=user, kerberoast_no_preauth=True)
+                            lmhash='', nthash='')
             except Exception as e:
                 print(f'error: {e}, on user: {user}')
     except SessionError as e:
