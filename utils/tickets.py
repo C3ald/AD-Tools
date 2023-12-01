@@ -163,7 +163,7 @@ class TGS:
 
 
     def outputTGS(self, ticket, oldSessionKey, sessionKey, fd=None):
-        fd = f'{self.username}.hash'
+        fd = open(f'{self.username}.hash', 'w')
         username = self.username
         spn = self.domain + '/' + username
         if self.no_preauth:
