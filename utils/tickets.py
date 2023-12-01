@@ -161,7 +161,7 @@ class TGS:
 
 
 
-    def run(self, fd=None, roast=False):
+    def run(self, fd=None):
         """change fd to save to file, will return entry if there is one"""
         spn = self.username + '@' + self.domain
         formatted_name = self.domain + "/" + self.username
@@ -169,10 +169,7 @@ class TGS:
         userclient.type = constants.PrincipalNameType.NT_MS_PRINCIPAL.value
         userclient.components = formatted_name
         entry = None
-        if roast == False:
-            tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new)
-        else:
-            tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new)
+        tgs, cipher, old, key = getKerberosTGS(userclient, self.domain, self.dc_ip, self.tgt, self.cipher, self.new)
         if self.preauth == False:
             try:
                 decodes = decoder.decode(tgs, asn1Spec=AS_REP())[0]
