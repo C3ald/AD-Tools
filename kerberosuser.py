@@ -19,7 +19,7 @@ try:
 except:
     sys.path.insert(0, './utils')
     from adconn import LdapConn
-    from tickets import TGT, TGS
+    from tickets import TGT, TGS_no_preauth
     from kerb5getuserspnnopreauth import getKerberosTGT as nopreauthTGT
 
 
