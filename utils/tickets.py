@@ -142,6 +142,7 @@ def getName(machine):
 
 class TGS_no_preauth:
     def __init__(self, domain, dc, username, password='', nthash='', lmhash='', aeskey='', no_preauth=True) -> None:
+        """username is the targeted username"""
         self.domain = domain
         self.dc = dc
         self.username = username
