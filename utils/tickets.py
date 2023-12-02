@@ -140,7 +140,7 @@ def getName(machine):
     return s.getServerName()
 
 
-class TGS:
+class TGS_no_preauth:
     def __init__(self, domain, dc, username, password='', nthash='', lmhash='', aeskey='', no_preauth=True) -> None:
         self.domain = domain
         self.dc = dc

